@@ -1,7 +1,7 @@
 package org.microsauce.incognito;
 
 public enum Lang {
-    JAVA("java"), JAVASCRIPT("javascript"), RUBY("ruby"), PYTHON("python");
+    GROOVY("groovy"), JAVASCRIPT("javascript"), RUBY("ruby"), PYTHON("python");
     
     String name;
     
