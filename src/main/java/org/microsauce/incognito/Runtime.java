@@ -20,7 +20,6 @@ public abstract class Runtime {
     }
 
     public abstract Object proxy(ObjectAdaptor objAdaptor);
-    public abstract ObjectAdaptor wrap(Object nativeObject);
     public void initialize() {
         if ( !initialized ) {
             doInitialize();
@@ -35,8 +34,11 @@ public abstract class Runtime {
     //
 
     // property access JS
-    public abstract Object getProp(String name);  // TODO runtime.setProp will handle wrapping
-    public abstract void setProp(String name, Object value);
+    public abstract Object getProp(Object target, String name);  // TODO runtime.setProp will handle wrapping
+    /*
+        type = typeof(target)
+     */
+    public abstract void setProp(Object target, String name, Object value);
 
     // method invocation
     public abstract Object execMethod(String name, List args); // TODO runtime will handle args and return value
@@ -57,5 +59,30 @@ public abstract class Runtime {
     //
     // array
     //
+
+    public abstract Type typeof(Object obj);
+
+    public ObjectAndType wrap(Object obj) {
+        Type type = typeof(obj);
+        if ( Type.PRIMITIVE.equals(type) ) {
+           return new ObjectAndType(Type.PRIMITIVE, obj);
+        } else if (Type.ARRAY.equals(type)) {
+            return new ObjectAndType(Type.ARRAY, wrapArray(obj));
+        } else if (Type.HASH.equals(type)) {
+            new ObjectAndType(Type.HASH, wrapHash(obj));
+        } else if (Type.SET.equals(type)) {
+            new ObjectAndType(Type.SET, wrapSet(obj));
+        } else if (Type.EXECUTABLE.equals(type)) {
+            new ObjectAndType(Type.EXECUTABLE, wrapExecutable(obj));
+        } else {
+            return new ObjectAndType(Type.OBJECT, wrapObject(obj));
+        }
+    }
+
+    public abstract Object wrapObject(Object obj);
+    public abstract Object wrapExecutable(Object obj);
+    public abstract Object wrapArray(Object obj);
+    public abstract Object wrapHash(Object obj);
+    public abstract Object wrapSet(Object obj);
 
 }

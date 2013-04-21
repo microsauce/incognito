@@ -1,6 +1,6 @@
 # TODO override array/hash methods
 
-class IncognitoProxy
+class JRubyObjectProxy
 
   def initialize(obj_adaptor)
     @obj_adaptor = obj_adaptor
@@ -11,4 +11,10 @@ class IncognitoProxy
     def method_missing(name, *args, &block)
       #@obj_adaptor.
     end
+end
+
+def create_exec_proxy(exec_adaptor)
+  return Proc.new { |*args|
+    exec_adaptor.exec *args
+  }
 end

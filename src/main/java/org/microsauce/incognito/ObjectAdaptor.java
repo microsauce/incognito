@@ -42,20 +42,6 @@ import java.util.List;
 // TODO will likely need to add more methods to support iteration
 public class ObjectAdaptor {
 
-    /* supported types */
-    public enum Type {
-        // TODO each of these types needs its own adaptor
-        PRIMITIVE("primitive"), // string, integer, float
-        EXECUTABLE("executable"), OBJECT("object"),
-        ARRAY("array"), HASH("hash"), SET("set"), DATE("date");
-
-        String name;
-
-        Type(String name) {
-            this.name = name;
-        }
-    }
-
     protected Runtime runtime;
     protected Type type;
     protected Object target;

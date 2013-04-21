@@ -5,10 +5,13 @@ Facilitate idiomatic interoperability of dynamic languages on the JVM.
 
 Goals:
 Develop a framework that enables objects created in supported JVM runtimes to enter other JVM runtimes 'incognito' -- assuming
-an identity natural to the receiving runtime.  Define proxies/adaptors to enable idiomatic usage of objects defined in
-each supported runtime in any of the other supported runtimes.  This support will include primitives (strings/integers/floating
-point), executable types (functions/lambdas/etc), commonly used data structures (arrays, hashes, ~~sets~~), dates, and
-method invocation.
+an identity natural to the receiving runtime.  Define adaptors to standardize access to objects in each supported runtime.
+Define proxies to enable idiomatic usage of objects encapsulated in the object adaptors. This support will include primitives
+(strings/integers/floating point), executable types (functions/lambdas/etc), commonly used data structures (arrays,
+hashes, ~~sets~~), dates, and method/function/lambda/etc invocation.
+
+Many of these features are already available for Java objects (and Groovy to some extent) inside JRuby and Rhino runtimes,
+But the reverse isn't true, neither can JRuby utilize Rhino objects in an idiomatic way (and vice-versa).
 
 Intended Use:
 Polyglot frameworks.
