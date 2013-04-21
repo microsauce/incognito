@@ -19,15 +19,17 @@ public abstract class Runtime {
         return lang;
     }
 
-    public abstract Object proxy(ObjectAdaptor objAdaptor);
+    public abstract Object proxy(ObjectAndType objAdaptor);
     public void initialize() {
         if ( !initialized ) {
             doInitialize();
             initialized = true;
         }
     }
-    public abstract String objIdentifier();   // TODO ???
+
     protected abstract void doInitialize();
+
+    protected abstract String objIdentifier();     // see Incognito.sourceRuntime
 
     //
     // object
@@ -44,8 +46,8 @@ public abstract class Runtime {
     public abstract Object execMethod(String name, List args); // TODO runtime will handle args and return value
 
     // reflection
-    public abstract Object getTargetClass();
-    public abstract Object getTargetMethods();
+    public abstract Object getTargetClass(Object target);
+    public abstract Object getTargetMethods(Object target);
 
     //
     // executable
@@ -65,15 +67,17 @@ public abstract class Runtime {
     public ObjectAndType wrap(Object obj) {
         Type type = typeof(obj);
         if ( Type.PRIMITIVE.equals(type) ) {
-           return new ObjectAndType(Type.PRIMITIVE, obj);
+            return new ObjectAndType(Type.PRIMITIVE, obj);
         } else if (Type.ARRAY.equals(type)) {
             return new ObjectAndType(Type.ARRAY, wrapArray(obj));
         } else if (Type.HASH.equals(type)) {
-            new ObjectAndType(Type.HASH, wrapHash(obj));
+            return new ObjectAndType(Type.HASH, wrapHash(obj));
         } else if (Type.SET.equals(type)) {
-            new ObjectAndType(Type.SET, wrapSet(obj));
+            return new ObjectAndType(Type.SET, wrapSet(obj));
         } else if (Type.EXECUTABLE.equals(type)) {
-            new ObjectAndType(Type.EXECUTABLE, wrapExecutable(obj));
+            return new ObjectAndType(Type.EXECUTABLE, wrapExecutable(obj));
+        } else if (Type.DATE.equals(type)) {
+            return new ObjectAndType(Type.DATE, wrapDate(obj));
         } else {
             return new ObjectAndType(Type.OBJECT, wrapObject(obj));
         }
@@ -84,5 +88,6 @@ public abstract class Runtime {
     public abstract Object wrapArray(Object obj);
     public abstract Object wrapHash(Object obj);
     public abstract Object wrapSet(Object obj);
+    public abstract Object wrapDate(Object obj);
 
 }

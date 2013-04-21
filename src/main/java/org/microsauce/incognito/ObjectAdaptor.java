@@ -43,7 +43,6 @@ import java.util.List;
 public class ObjectAdaptor {
 
     protected Runtime runtime;
-    protected Type type;
     protected Object target;
 
     // object
@@ -58,15 +57,8 @@ public class ObjectAdaptor {
     // TODO for groovy and ruby use this for property access
     // TODO unused for JS
     public Object execMethod(String name, List args) { // method
-        return runtime.execMethod(target, name, args); // TODO runtime will handle args and return value
+        return runtime.exec(target, name, args); // TODO runtime will handle args and return value
     }
-//
-//    // get / set value that require transformation - i.e. date
-//    public abstract Object getValue();
-//    public abstract void setValue(Object value);
-//
-//    // executable - function / closure / proc / lambda / etc.
-//    public abstract Object exec(Object executionContext, List args);
 
     // reflection
     public Object getTarget() {
@@ -78,34 +70,5 @@ public class ObjectAdaptor {
     public Object getTargetClass() {
         return runtime.getTargetClass(target);
     }
-//    public abstract Object getTargetAttributes();
-    public Type getBasicType() {
-        return type;
-    }
-
-//    // collections
-//    // array
-//    public abstract void append(Object value);
-//    public abstract void prepend(Object value);
-//    public abstract Object getAt(Integer ndx);
-//    public abstract Object removeAt(Integer ndx);
-//    public abstract Object insertAt(Integer ndx);
-//
-//    // hash / set
-//    public abstract Object get(Object key);
-//    public abstract Object put(Object key, Object value);
-//    public abstract Object remove(Object key);
-//
-//    public abstract boolean contains(Object key);
-//    public abstract void clear();
-//    public abstract void addAll();
-//
-//    // iterator
-//    public abstract Object next();
-//    public abstract Object hasNext();
-//    public abstract void reset();
-//
-//    // exceptions
-//    public abstract Object raiseError(String errorMessage);
 }
 

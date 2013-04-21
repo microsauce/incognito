@@ -18,7 +18,7 @@ abstract class BaseProxy implements InvocationHandler {
     public Object invoke(final Object proxy, final Method method,
                          final Object[] args) throws Throwable {
         Object value = null;
-        try {
+        try { // check 'this' first to override target implementation
             Method targetMethod = this.getClass().getMethod(method.getName(), method.getParameterTypes());
             value = targetMethod.invoke(this, args);
         }
