@@ -40,14 +40,14 @@ import java.util.List;
 // TODO for groovy add support for Date and Joda time
 // TODO in impl class create map of native class - Type
 // TODO will likely need to add more methods to support iteration
-public class ObjectAdaptor {
+public class ObjectAdaptor implements IncognitoAdaptor {
 
     protected Runtime runtime;
-    protected Object target;
+    protected ObjectAndType target;
 
     // object
     // TODO handle any type conversions (date) / any wrapping
-    // TODO use this for RHino adaptor
+    // TODO use this for Rhino adaptor
     public Object getProp(String name) { // primitive
         return runtime.getProp(target, name);  // TODO runtime.getProp will return object with appropriate wrapping
     }
@@ -69,6 +69,12 @@ public class ObjectAdaptor {
     }
     public Object getTargetClass() {
         return runtime.getTargetClass(target);
+    }
+    public boolean equals(Object object) {
+        return target.equals(object);
+    }
+    public int hashCode() {
+        return target.hashCode();
     }
 }
 

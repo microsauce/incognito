@@ -2,7 +2,7 @@ package org.microsauce.incognito;
 
 import java.util.List;
 
-public class ExecutableAdaptor {
+public class ExecutableAdaptor implements IncognitoAdaptor {
 
     protected Runtime runtime;
     protected Type type;

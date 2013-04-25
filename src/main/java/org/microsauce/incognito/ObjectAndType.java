@@ -17,4 +17,11 @@ public class ObjectAndType {
     public Object getObject() {
         return object;
     }
+    public boolean equals(Object object) {
+        return object.equals(object);
+    }
+    public int hashCode() {
+        return object.hashCode();
+    }
+
 }

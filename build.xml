@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="jar" name="incognito" basedir=".">
+
+	<path id="build.classpath">
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement path="${basedir}/target/classes" />
+	</path>
+
+	<target name="init" depends="clean">
+		<mkdir dir="${basedir}/target/classes" />
+	</target>
+	
+	<target name="compile" depends="init"
+			description="Compile Java sources">
+
+		<javac destdir="${basedir}/target/classes"
+			srcdir="${basedir}/src/main/java"
+			listfiles="true" source="1.7" target="1.7">
+			<classpath refid="build.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="javaScript" depends="compile">
+	    <copy todir="${basedir}/target/classes">
+	    	<fileset dir="${basedir}/src/main/javascript">
+	    		<include name="*/**"/>
+	    	</fileset>
+	    </copy>
+	</target>
+
+    <target name="resources" depends="compile">
+        <copy todir="${basedir}/target/classes">
+            <fileset dir="${basedir}/src/main/resources">
+                <include name="*/**"/>
+            </fileset>
+        </copy>
+    </target>
+
+	<target name="ruby" depends="compile">
+	    <copy todir="${basedir}/target/classes">
+	    	<fileset dir="${basedir}/src/main/ruby">
+	    		<include name="*/**"/>
+	    	</fileset>
+	    </copy>
+	</target>
+	
+	<target name="jar" depends="compile,javaScript,ruby,resources">
+		<jar destfile="${basedir}/lib/incognito.jar"
+			basedir="${basedir}/target/classes" />
+	</target>
+
+	<target name="clean" description="Deletes all build artifacts.">
+		<delete dir="${basedir}/target/classes" failonerror="false"/>
+		<delete file="${basedir}/lib/gravy.jar" failonerror="false"/>
+	</target>
+	
+</project>
