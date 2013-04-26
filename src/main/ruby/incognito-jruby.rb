@@ -9,6 +9,7 @@ module Incognito
       @this_runtime = this_runtime
     end
 
+    # TODO review this.  Might want to be more selective on what we undefine
     instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$)/ }
 
     protected

@@ -1,25 +1,22 @@
 package org.microsauce.incognito;
 
 
-public class MetaObject implements IncognitoProxy {
+public class MetaObject<T> implements IncognitoProxy {
 
     private Type type;
-    private Object object;
+    private T object;
     private Runtime originRuntime;
 
-    public MetaObject(Type type, Runtime origin, Object object) {
+    public MetaObject(Type type, Runtime origin, T object) {
         this.object = object;
         this.type = type;
-        this.originRuntime = originRuntime;
+        this.originRuntime = origin;
     }
 
     public Type getType() {
         return type;
     }
 
-    public Object getObject() {
-        return object;
-    }
     public boolean equals(Object object) {
         return object.equals(object);
     }
@@ -31,7 +28,7 @@ public class MetaObject implements IncognitoProxy {
     }
 
     @Override
-    public Object getTarget() {
+    public T getTargetObject() {
         return object;
     }
 }

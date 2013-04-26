@@ -1,14 +1,14 @@
 package org.microsauce.incognito;
 
 
+import java.util.Collection;
+
 public class CollectionProxy extends BaseProxy {
 
-    protected Runtime originRuntime;
     protected Runtime destRuntime;
 
-    public CollectionProxy(Object target, Runtime origin, Runtime dest) {
-        super(target);
-        originRuntime = origin;
+    public CollectionProxy(MetaObject<? extends Collection> target, Runtime dest) {
+        super(target.getTargetObject());
         destRuntime = dest;
     }
 }

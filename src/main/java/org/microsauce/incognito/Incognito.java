@@ -16,7 +16,7 @@ public class Incognito {
     }
 
     public void registerRuntime(Runtime runtime) {
-        runtimeByLang.put(runtime.getLang(), runtime);
+        runtimeByLang.put(runtime.getLang(), runtime); // TODO one RT per lang? not necessary
 
         runtime.initialize();
     }
@@ -33,7 +33,9 @@ public class Incognito {
     }
 
     private MetaObject wrap(Object rawObject) {
-        return sourceRuntime(rawObject).wrap(rawObject);
+        Runtime sourceRt = sourceRuntime(rawObject);
+        if ( sourceRt != null ) return sourceRt.wrap(rawObject);
+        else return new MetaObject(Type.PRIMITIVE, null, rawObject); // primitives are ambiguous
     }
 
     private Runtime sourceRuntime(Object rawObject) {

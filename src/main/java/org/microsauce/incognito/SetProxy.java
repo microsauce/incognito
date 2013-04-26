@@ -1,20 +1,51 @@
 package org.microsauce.incognito;
 
+import java.util.Iterator;
 import java.util.Set;
 
 public class SetProxy extends CollectionProxy {
 
-    private Set trg;
+    private MetaObject<Set> trg;
+    private Set trgSet;
 
-    public SetProxy(Set target, Runtime origin, Runtime dest) {
-        super(target, origin, dest);
+    public SetProxy(MetaObject<Set> target, Runtime dest) {
+        super(target, dest);
         this.trg = target;
+        this.trgSet = target.getTargetObject();
     }
 
     public boolean add(Object obj) {
-        return trg.add(destRuntime.wrap(obj));
+        return trg.getTargetObject().add(trg.getOriginRuntime().wrap(obj));
     }
 
-    // TODO iterator etc
+    public Iterator iterator() {
+        return new ProxySetIterator();
+    }
 
+    // TODO
+
+    private class ProxySetIterator implements Iterator {
+
+        private Iterator iterator;
+
+        public ProxySetIterator() {
+            this.iterator = trgSet.iterator();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public Object next() {
+            Object next = iterator.next();
+            return destRuntime.proxy(trg.getOriginRuntime().wrap(next));
+        }
+
+        @Override
+        public void remove() {
+            iterator.remove();
+        }
+    }
 }
