@@ -10,6 +10,16 @@ Define proxies to enable idiomatic usage of objects encapsulated in the object a
 (strings/integers/floating point), executable types (functions/lambdas/etc), commonly used data structures (arrays,
 hashes, ~~sets~~), dates, and method/function/lambda/etc invocation.
 
+!!!
+Store all object attr/props and collection elements as MetaObject (including primitives/dates)
+!!!
+
+Proxy
+    originRuntime facade
+    destinationRuntime facade
+    targetObject (MetaObject)
+    all proxies will implement a method named 'originRuntime' which recursively calls up to the root object
+
 Many of these features are already available for Java objects (and Groovy to some extent) inside JRuby and Rhino runtimes,
 But the reverse isn't true, neither can JRuby utilize Rhino objects in an idiomatic way (and vice-versa).
 

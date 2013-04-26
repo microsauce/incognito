@@ -1,8 +1,7 @@
 
-function newProxyObject(adaptor) {
-    return new ScriptableMap(new RhinoAdaptorBackedMap(adaptor));
-}
+// TODO uncertain that I need a script to init rhino
+// I plan to use ScriptableMap/List
 
-function newProxyArray(adaptor) {
-    return new ScriptableList(new RhinoAdaptorBackedList(adaptor));
+function newRhinoProxy(adaptor) {
+    return new ScriptableMap(new RhinoAdaptorBackedMap(adaptor));
 }

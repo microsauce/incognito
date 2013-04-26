@@ -32,7 +32,7 @@ public class Incognito {
         return proxy(lang, rawObject);
     }
 
-    private ObjectAndType wrap(Object rawObject) {
+    private MetaObject wrap(Object rawObject) {
         return sourceRuntime(rawObject).wrap(rawObject);
     }
 

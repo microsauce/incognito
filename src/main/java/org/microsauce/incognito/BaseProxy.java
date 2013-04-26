@@ -12,7 +12,7 @@ import java.util.Map;
  * an appropriate adaptor (origin rt adaptor)
  * - any object added / modified will also be wrapped (in a dest RT adaptor).
  * special care is needed to ensure objects don't get double-wrapped (add a check):
- * if obj instance of IncognitoAdaptor then don't wrap
+ * if obj instance of IncognitoProxy then don't wrap
  *
  * the proxy will override get/put/add methods
  *

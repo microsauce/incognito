@@ -1,7 +1,7 @@
 package org.microsauce.incognito.rhino;
 
 import org.microsauce.incognito.Lang;
-import org.microsauce.incognito.ObjectAndType;
+import org.microsauce.incognito.MetaObject;
 import org.microsauce.incognito.Runtime;
 import org.microsauce.incognito.Type;
 import org.mozilla.javascript.ScriptableObject;
@@ -20,7 +20,7 @@ public class RhinoRuntime extends Runtime {
 
     @Override
     protected void doInitialize() {
-        // TODO implement this last
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -29,15 +29,13 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
-    protected ObjectAndType doGetProp(Object target, String name) {
-        ScriptableObject sObject = (ScriptableObject) target;
-        return wrap(sObject.get(name)); // TODO verify
+    protected MetaObject doGetProp(MetaObject target, String name) {
+        return wrap(((ScriptableObject)target.getTarget()).get(name));
     }
 
     @Override
-    protected void doSetProp(Object target, String name, ObjectAndType wrapped) {
-        ScriptableObject sObject = (ScriptableObject) target;
-        //sObject.put
+    protected void doSetProp(Object target, String name, Object value) {
+        ((ScriptableObject)target).put(name, proxy(wrap(value)));
     }
 
     @Override
@@ -61,32 +59,32 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
-    public ObjectAndType hashGet(Map target, Object key) {
+    public MetaObject hashGet(Map target, Object key) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public ObjectAndType hashPut(Map target, Object key, ObjectAndType value) {
+    public MetaObject hashPut(Map target, Object key, MetaObject value) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public ObjectAndType hashEntries(Map target) {
+    public MetaObject hashEntries(Map target) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public ObjectAndType setAdd(Set target, ObjectAndType value) {
+    public MetaObject setAdd(Set target, MetaObject value) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public ObjectAndType listGet(List target, int ndx) {
+    public MetaObject listGet(List target, int ndx) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public ObjectAndType listAdd(List target, int ndx, ObjectAndType value) {
+    public MetaObject listAdd(List target, int ndx, MetaObject value) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -96,62 +94,34 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
-    public Object wrapObject(Object obj) {
+    public Object objectProxy(MetaObject obj) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public Object wrapExecutable(Object obj) {
+    public Object executableProxy(MetaObject obj) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public Object wrapArray(Object obj) {
+    public Object arrayProxy(MetaObject obj) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public Object wrapHash(Object obj) {
+    public Object hashProxy(MetaObject obj) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public Object wrapSet(Object obj) {
+    public Object dataSetProxy(MetaObject obj) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public Object wrapDate(Object obj) {
+    public Object dateProxy(MetaObject obj) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
-    public Object objectProxy(ObjectAndType obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 
-    @Override
-    public Object executableProxy(ObjectAndType obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Object arrayProxy(ObjectAndType obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Object hashProxy(ObjectAndType obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Object dataSetProxy(ObjectAndType obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Object dateProxy(ObjectAndType obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 }
