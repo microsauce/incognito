@@ -4,7 +4,7 @@ package org.microsauce.incognito;
 public class MetaObject<T> implements IncognitoProxy {
 
     private Type type;
-    private T object;
+    protected T object;
     private Runtime originRuntime;
 
     public MetaObject(Type type, Runtime origin, T object) {
@@ -29,6 +29,12 @@ public class MetaObject<T> implements IncognitoProxy {
 
     @Override
     public T getTargetObject() {
-        return object;
+        return (T)conversion();
     }
+
+    public String toString() {
+        return object.toString();
+    }
+
+    public Object conversion() {return object;}
 }

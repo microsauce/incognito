@@ -5,17 +5,23 @@ import org.microsauce.incognito.MetaObject;
 import org.microsauce.incognito.Runtime;
 import org.microsauce.incognito.Type;
 import org.mozilla.javascript.*;
+import org.ringojs.wrappers.ScriptableList;
 import org.ringojs.wrappers.ScriptableMap;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RhinoRuntime extends Runtime {
 
     private static String RHINO_IDENTIFIER = "org.mozilla";
 
-    private NativeFunction newRhinoExecutableProxy;
+    private NativeFunction incongnitoRhinoExecutableProxy;
+    private NativeFunction incognitoConvertRhinoDate;
+    private NativeFunction incongnitoRhinoDate;
 
     public RhinoRuntime(Lang lang, Object runtime, Object scope) {
         super(lang, runtime, scope);
@@ -32,12 +38,14 @@ public class RhinoRuntime extends Runtime {
             try {
                 ctx.evaluateReader((ScriptableObject)scope, reader, "incognito-rhino.js", 1, null);
             } catch (IOException e) {throw new RuntimeException(e);}
-            newRhinoExecutableProxy = (NativeFunction)((ScriptableObject) scope).get("newRhinoExecutableProxy");
+
+            incongnitoRhinoExecutableProxy = (NativeFunction)((ScriptableObject) scope).get("newRhinoExecutableProxy");
+            incognitoConvertRhinoDate = (NativeFunction)((ScriptableObject) scope).get("incognitoConvertRhinoDate");
+            incongnitoRhinoDate = (NativeFunction)((ScriptableObject) scope).get("incongnitoRhinoDate");
         }
         finally {
             if (ctx != null) ctx.exit();
         }
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -51,7 +59,7 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
-    protected void doSetProp(MetaObject target, String name, MetaObject value) {
+    public void setProp(MetaObject target, String name, MetaObject value) {
         ((ScriptableObject)target.getTargetObject()).put(
                 name, (ScriptableObject)target.getTargetObject(), proxy(wrap(value)));
     }
@@ -99,8 +107,7 @@ public class RhinoRuntime extends Runtime {
 
     @Override
     public Object objectProxy(MetaObject obj) {
-        ProxyMap proxy = new ProxyMap(obj, this);
-        return new ScriptableMap((ScriptableObject)scope, proxy);
+        return new IncognitoNativeJavaObject(obj, this);
     }
 
     @Override
@@ -109,8 +116,8 @@ public class RhinoRuntime extends Runtime {
         try {
             ctx = Context.getCurrentContext();
             if ( ctx == null ) ctx = Context.enter();
-            return newRhinoExecutableProxy.call(
-                    ctx, (ScriptableObject)scope, (ScriptableObject)scope, new Object[] {});
+            return incongnitoRhinoExecutableProxy.call(
+                    ctx, (ScriptableObject)scope, (ScriptableObject)scope, new Object[] {obj.getTargetObject(), this});
         }
         finally {
             ctx.exit();
@@ -119,23 +126,48 @@ public class RhinoRuntime extends Runtime {
 
     @Override
     public Object arrayProxy(MetaObject obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new ScriptableList((ScriptableObject)scope, (List)super.arrayProxy(obj));
     }
 
     @Override
     public Object hashProxy(MetaObject obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new ScriptableMap((ScriptableObject)scope, (Map)super.hashProxy(obj));
     }
 
     @Override
     public Object dataSetProxy(MetaObject obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Set originalCollection = (Set)super.dataSetProxy(obj);
+        IncognitoScriptableList array = new IncognitoScriptableList(
+                (ScriptableObject)scope, new ArrayList(originalCollection));
+        array.setOriginCollection(originalCollection);
+        return array;
     }
 
     @Override
     public Object dateProxy(MetaObject obj) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Context ctx = null;
+        try {
+            ctx = Context.getCurrentContext();
+            if ( ctx == null ) ctx = Context.enter();
+            return incongnitoRhinoDate.call(
+                    ctx, (ScriptableObject)scope, (ScriptableObject)scope, new Object[] {obj.getTargetObject()});
+        }
+        finally {
+            ctx.exit();
+        }
     }
 
-
+    @Override
+    public Object dateConversion(Object date) {
+        Context ctx = null;
+        try {
+            ctx = Context.getCurrentContext();
+            if ( ctx == null ) ctx = Context.enter();
+            return incognitoConvertRhinoDate.call(
+                    ctx, (ScriptableObject)scope, (ScriptableObject)scope, new Object[] {date});
+        }
+        finally {
+            ctx.exit();
+        }
+    }
 }

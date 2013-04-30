@@ -20,6 +20,17 @@ Proxy
     targetObject (MetaObject)
     all proxies will implement a method named 'originRuntime' which recursively calls up to the root object
 
+milestones
+0.1 - ruby, groovy, rhino | objects (property access, method invocation), primitives, built-in data structions (arrays,hashes,sets), dates, executable types (functions/closures/procs/lambdas)
+0.2 - jython ???
+0.3 - guice style polyglot IOC
+configure(os, ls, as)
+    bind('orderService').to(os)
+    bind('logService').to(ls)
+    bind('auditService').to(as)
+
+
+
 Many of these features are already available for Java objects (and Groovy to some extent) inside JRuby and Rhino runtimes,
 But the reverse isn't true, neither can JRuby utilize Rhino objects in an idiomatic way (and vice-versa).
 

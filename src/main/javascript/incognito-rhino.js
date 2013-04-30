@@ -1,25 +1,33 @@
 
-// TODO uncertain that I need a script to init rhino
-// I plan to use ScriptableMap/List
+/*
+    define these in the global scope for now
+*/
 
-
-(function() {
-
-    function newRhinoExecutableProxy(metaObject, runtime) {
-        var originRuntime = metaObject.originRuntime;
-        return function(args) {
-            return originRuntime.exec(
-                metaObject,
-                originRuntime.scope,
-                prepareArguments(args, originRuntime, runtime));
-        }
+global.incongnitoRhinoExecutableProxy = function(metaObject, runtime) {
+    var originRuntime = metaObject.originRuntime;
+    return function(args) {
+        return originRuntime.exec(
+            metaObject,
+            originRuntime.scope,
+            incognitoPrepareArguments(args, originRuntime, runtime));
     }
+}
 
-    function prepareArguments(args, originRuntime, destRuntime) {
-        return args.map(function(arg) {
-            return destRuntime.proxy(originRuntime.wrap(arg));
-        });
-    }
+global.incongnitoRhinoDate = function(millis) {
+    var d = new Date();
+    d.setMilliseconds(millis);
+    return d;
+}
 
-}());
+global.incognitoConvertRhinoDate() = function(date) {
+    return date.getMilliseconds();
+}
+
+global.incognitoPrepareArguments = function(args, originRuntime, destRuntime) {
+    return args.map(function(arg) {
+        return originRuntime.proxy(destRuntime.wrap(arg));
+    });
+}
+
+
 

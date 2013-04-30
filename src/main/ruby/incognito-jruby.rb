@@ -9,7 +9,7 @@ module Incognito
       @this_runtime = this_runtime
     end
 
-    # TODO review this.  Might want to be more selective on what we undefine
+    # TODO review this.  Might want to be more selective on what we un-define
     instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$)/ }
 
     protected
@@ -32,13 +32,29 @@ module Incognito
     return JRubyObjectProxy.new(target, this_runtime)
   end
 
-  def create_exec_proxy(target, this_runtime)
-    return Proc.new { |*args|
-      origin_runtime = target.origin_runtime
-      this_runtime.proxy(origin_runtime.exec(target, args.collect { |it|
-        origin_runtime.proxy(it)
-      }))
-    }
+  def create_exec_proxy(meta_object, this_runtime)
+    if origin_runtime.lang == RUBY
+      return meta_object.target
+    else
+      return Proc.new { |*args|
+        origin_runtime = meta_object.origin_runtime
+        this_runtime.proxy(origin_runtime.exec(meta_object, args.collect { |it|
+          origin_runtime.proxy(it)
+        }))
+      }
+    end
   end
 
-end # module
+  def create_ruby_date(meta_object)
+    if origin_runtime.lang == RUBY
+      return meta_object.target
+    else
+      return Time.at(meta_object.target)
+    end
+  end
+
+  def exec_proc(p, *args)
+    return p.call(*args)
+  end
+
+end # module Incognito
