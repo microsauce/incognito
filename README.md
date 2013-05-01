@@ -20,7 +20,8 @@ include primitives (strings/integers/floating point), executable types (function
 status and roadmap
 ==================
 Incognito is currently in pre-alpha software.
-* 0.1 - ruby, groovy, rhino | objects (property access, method invocation), primitives, built-in data structions (arrays,hashes,sets), dates, executable types (functions/closures/procs/lambdas)
+* 0.1 - ruby, groovy, rhino, primitives (strings/integers/floating point), executable types (functions/lambdas/etc), commonly used data structures
+(arrays, hashes, sets), dates, and method/function/lambda/etc invocation
 * 0.2 - jython
 * 0.3 - guice style polyglot IOC
 
