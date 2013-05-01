@@ -32,6 +32,10 @@ public class MetaObject<T> implements IncognitoProxy {
         return (T)conversion();
     }
 
+    public T getTargetRaw() {
+        return object;
+    }
+
     public String toString() {
         return object.toString();
     }

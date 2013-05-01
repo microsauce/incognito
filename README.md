@@ -6,7 +6,7 @@ Facilitate idiomatic interoperability of dynamic languages on the JVM.
 Goals:
 Develop a framework that enables objects created in supported JVM runtimes to enter other JVM runtimes 'incognito' -- assuming
 an identity natural to the receiving runtime.  Define adaptors to standardize access to objects in each supported runtime.
-Define proxies to enable idiomatic usage of objects encapsulated in the object adaptors. This support will include primitives
+Define proxies to enable idiomatic usage of object runtime adaptors. Support will include primitives
 (strings/integers/floating point), executable types (functions/lambdas/etc), commonly used data structures (arrays,
 hashes, ~~sets~~), dates, and method/function/lambda/etc invocation.
 
@@ -34,10 +34,12 @@ configure(os, ls, as)
 Many of these features are already available for Java objects (and Groovy to some extent) inside JRuby and Rhino runtimes,
 But the reverse isn't true, neither can JRuby utilize Rhino objects in an idiomatic way (and vice-versa).
 
-Intended Use:
+Intended Use:                                                                          Implementation strategy:                                                                in the object adaptor in the object adaptor
+ in the object adaptor in the object adaptor
 Polyglot frameworks.
 
-Implementation strategy:
+Implementation strategy:                                                               Implementation strategy:                                                                in the object adaptor in the object adaptor
+ in the object adaptor in the object adaptor
 1. define adaptor interfaces to wrap target objects
 2. define proxies in host RT's which forward method calls to adaptor (via 'methodMissing' or the like)
 3. leverage existing host RT primitive type and Java collection interoperability (JRuby, Rhino, and Groovy are all
@@ -45,8 +47,8 @@ Implementation strategy:
 
 Implementation Notes:
 - JRuby and Rhino hashes/arrays extend Java Map/List (RubyHash-RubyArray/NativeArray-NativeObject) - adaptor implementations
-  will extend these types (via dynamic Proxy) overriding get/put/add methods ()
-
+  will extend these types (via dynaImplementationmic Proxy) overriding get/put/add methods ()
+                        ImplementationImplementationImplementation
 Initial target runtimes: JRuby, Rhino/RingoJS, Groovy
 Potential target runtimes: Jython (collection interop not as complete as JRuby/Rhino)
 

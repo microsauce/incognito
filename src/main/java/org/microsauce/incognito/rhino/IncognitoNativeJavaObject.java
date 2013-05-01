@@ -21,7 +21,7 @@ public class IncognitoNativeJavaObject extends NativeJavaObject {
         Runtime oRuntime = target.getOriginRuntime();
         oRuntime.setProp(target, name, thisRuntime.wrap(value));
     }
-    public Object getDefaultValue(Class<?> hint) {
+    public Object getDefaultValue(Class hint) {
         return target.toString();
     }
 }

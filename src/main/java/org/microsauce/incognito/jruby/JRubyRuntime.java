@@ -2,8 +2,6 @@ package org.microsauce.incognito.jruby;
 
 import org.jruby.*;
 import org.jruby.embed.ScriptingContainer;
-import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.builtin.IRubyObject;
 import org.microsauce.incognito.Lang;
 import org.microsauce.incognito.MetaObject;
 import org.microsauce.incognito.Runtime;
@@ -21,6 +19,7 @@ public class JRubyRuntime extends Runtime {
 
     public JRubyRuntime(Lang lang, Object runtime, Object scope) {
         super(lang, runtime, scope);
+        id = RT.JRUBY;
     }
 
     @Override
@@ -58,13 +57,9 @@ public class JRubyRuntime extends Runtime {
 
     @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
-        ThreadContext ctx = ((ScriptingContainer)runtime).getProvider().getRuntime().getCurrentContext();
-        IRubyObject[] rArgs = new IRubyObject[args.size()];
-        for ( int i = 0; i < args.size(); i++ ) {
-            rArgs[i] = (IRubyObject)args.get(i);
-        }
-        ((RubyProc)target.getTargetObject()).call(ctx, args.toArray());
-        return null;
+        args.add(0,target.getTargetObject());
+        return wrap(((ScriptingContainer) runtime).callMethod(
+                incognitoModule, "exec_proc", args));
     }
 
     @Override
@@ -88,21 +83,21 @@ public class JRubyRuntime extends Runtime {
 
     @Override
     public Object dateConversion(Object date) {
-        return null;
+        return ((ScriptingContainer)runtime).callMethod(incognitoModule, "convert_date", new Object[] {date});
     }
 
     @Override
     public Object objectProxy(MetaObject obj) {
-        return null;
+        return ((ScriptingContainer)runtime).callMethod(incognitoModule, "create_obj_proxy", new Object[] {obj});
     }
 
     @Override
     public Object executableProxy(MetaObject obj) {
-        return null;
+        return ((ScriptingContainer)runtime).callMethod(incognitoModule, "create_exec_proxy", new Object[] {obj});
     }
 
     @Override
     public Object dateProxy(MetaObject obj) {
-        return null;
+        return ((ScriptingContainer)runtime).callMethod(incognitoModule, "create_ruby_date", new Object[] {obj});
     }
 }

@@ -19,12 +19,15 @@ public class RhinoRuntime extends Runtime {
 
     private static String RHINO_IDENTIFIER = "org.mozilla";
 
-    private NativeFunction incongnitoRhinoExecutableProxy;
-    private NativeFunction incognitoConvertRhinoDate;
-    private NativeFunction incongnitoRhinoDate;
+    private NativeObject incognito;
+    private NativeFunction executableProxy;
+    private NativeFunction convertDate;
+    private NativeFunction dateProxy;
+    private NativeFunction objectProxy;
 
     public RhinoRuntime(Lang lang, Object runtime, Object scope) {
         super(lang, runtime, scope);
+        id = RT.RHINO;
     }
 
     @Override
@@ -39,11 +42,12 @@ public class RhinoRuntime extends Runtime {
                 ctx.evaluateReader((ScriptableObject)scope, reader, "incognito-rhino.js", 1, null);
             } catch (IOException e) {throw new RuntimeException(e);}
 
-            incongnitoRhinoExecutableProxy = (NativeFunction)((ScriptableObject) scope).get("newRhinoExecutableProxy");
-            incognitoConvertRhinoDate = (NativeFunction)((ScriptableObject) scope).get("incognitoConvertRhinoDate");
-            incongnitoRhinoDate = (NativeFunction)((ScriptableObject) scope).get("incongnitoRhinoDate");
-        }
-        finally {
+            incognito = (NativeObject)((ScriptableObject) scope).get("Incognito");
+            executableProxy = (NativeFunction)incognito.get("executableProxy");
+            convertDate = (NativeFunction)incognito.get("convertDate");
+            dateProxy = (NativeFunction)incognito.get("dateProxy");
+            objectProxy = (NativeFunction)incognito.get("objectProxy");
+        } finally {
             if (ctx != null) ctx.exit();
         }
     }
@@ -116,8 +120,8 @@ public class RhinoRuntime extends Runtime {
         try {
             ctx = Context.getCurrentContext();
             if ( ctx == null ) ctx = Context.enter();
-            return incongnitoRhinoExecutableProxy.call(
-                    ctx, (ScriptableObject)scope, (ScriptableObject)scope, new Object[] {obj.getTargetObject(), this});
+            return executableProxy.call(
+                    ctx, incognito, incognito, new Object[] {obj.getTargetObject(), this});
         }
         finally {
             ctx.exit();
@@ -149,8 +153,8 @@ public class RhinoRuntime extends Runtime {
         try {
             ctx = Context.getCurrentContext();
             if ( ctx == null ) ctx = Context.enter();
-            return incongnitoRhinoDate.call(
-                    ctx, (ScriptableObject)scope, (ScriptableObject)scope, new Object[] {obj.getTargetObject()});
+            return dateProxy.call(
+                    ctx, incognito, incognito, new Object[] {obj.getTargetObject()});
         }
         finally {
             ctx.exit();
@@ -163,8 +167,8 @@ public class RhinoRuntime extends Runtime {
         try {
             ctx = Context.getCurrentContext();
             if ( ctx == null ) ctx = Context.enter();
-            return incognitoConvertRhinoDate.call(
-                    ctx, (ScriptableObject)scope, (ScriptableObject)scope, new Object[] {date});
+            return convertDate.call(
+                    ctx, incognito, incognito, new Object[] {date});
         }
         finally {
             ctx.exit();

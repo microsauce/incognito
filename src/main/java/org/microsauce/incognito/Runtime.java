@@ -8,6 +8,19 @@ import static java.lang.reflect.Proxy.newProxyInstance;
 
 public abstract class Runtime {
 
+    public static enum RT {
+        JRUBY("jruby"), RHINO("rhino"), GROOVY("groovy");
+
+        private String name;
+
+        RT(String name) {
+            this.name = name;
+        }
+
+        public String getName() {return name;}
+    }
+
+    protected RT id;
     protected Lang lang;
     protected Object runtime;
 

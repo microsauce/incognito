@@ -1,5 +1,11 @@
 # TODO override array/hash methods
 
+require 'java'
+require 'date'
+
+java_import org.microsauce.incognito.CommonDate
+java_import org.microsauce.incognito.Runtime
+
 module Incognito
 
   class JRubyObjectProxy
@@ -14,7 +20,7 @@ module Incognito
 
     protected
       def method_missing(name, *args, &block)
-        if origin_runtime.lang == RUBY
+        if origin_runtime.id == Runtime::RT::RUBY
           @meta_object.target.send name, *args
         else
           @meta_object.origin_runtime.exec_method name, prepare_arguments(args)
@@ -47,10 +53,15 @@ module Incognito
 
   def create_ruby_date(meta_object)
     if origin_runtime.lang == RUBY
-      return meta_object.target
+      return meta_object.target_raw
     else
-      return Time.at(meta_object.target)
+      cd = meta_object.target_object
+      return DateTime.new(cd.year, cd.month, cd.day_of_month, cd.hour, cd.minute, cd.second, 0)
     end
+  end
+
+  def convert_date(date)
+     return CommonDate.new(date.year, date.month, date.mday, date.hour, date.second, 0)
   end
 
   def exec_proc(p, *args)
