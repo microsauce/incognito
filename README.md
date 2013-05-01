@@ -3,26 +3,26 @@ incognito
 
 Facilitate idiomatic interoperability of dynamic languages on the JVM.
 
-## the problem
+### the problem
 Many languages target the JVM.  Most of these languages have excellent interoperability with Java.  The problem is
 (outside of their disparate runtime API's) they don't interoperate well with each other.  Incognito is an attempt to
 solve this problem.
 
-## overview
+### overview
 Incongnito is a framework that enables objects created in supported JVM runtimes to enter other JVM runtimes 'incognito'
 -- assuming an identity natural to the receiving runtime.  The framework defines adaptors to standardize access to objects in each
 supported runtime.  It defines proxies to enable idiomatic usage of these objects in receiving runtimes. Support will
-include primitives (strings/integers/floating point), executable types (functions/lambdas/etc), commonly used data structures
+include primitives (strings/integers/floating point), objects, executable types (functions/lambdas/etc), data structure literals
 (arrays, hashes, sets), dates, and method/function/lambda/etc invocation.
 
-## status and roadmap
-Incognito is currently in pre-alpha software.
+### status and roadmap
+Incognito is currently pre-alpha software.  Proposed roadmap:
 * 0.1 - jruby, groovy, rhino, runtime adaptors and proxies
 * 0.2 - jython
 * 0.3 - guice style polyglot IOC
 * 1.0
 
-## proposed syntax:
+### proposed syntax:
 ```ruby
 incognito = Incognito.new
 incognito.registerRuntime(RhinoRuntime.new(scope))
