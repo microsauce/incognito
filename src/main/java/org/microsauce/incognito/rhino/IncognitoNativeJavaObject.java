@@ -15,6 +15,11 @@ public class IncognitoNativeJavaObject extends NativeJavaObject {
     }
 
     public Object get(String name, Scriptable start) {
+//System.out.println("IncognitoNativeJavaObject.get: " + name);
+//MetaObject mo = target.getOriginRuntime().getProp(target, name);
+//System.out.println("\tmo: " + mo);
+//System.out.println("\tmo.target: " + mo.getTargetObject());
+//System.out.println("\tmo.target.type: " + mo.getType());
         return thisRuntime.proxy(target.getOriginRuntime().getProp(target, name));
     }
     public void put(String name, Scriptable start, Object value) {

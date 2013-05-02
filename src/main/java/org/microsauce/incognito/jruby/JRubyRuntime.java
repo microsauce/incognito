@@ -17,8 +17,8 @@ public class JRubyRuntime extends Runtime {
 
     private RubyObject incognito;
 
-    public JRubyRuntime(Object runtime, Object scope) {
-        super(runtime, scope);
+    public JRubyRuntime(Object runtime) {
+        super(runtime);
         lang = Lang.RUBY;
         id = RT.JRUBY;
     }
@@ -31,11 +31,6 @@ public class JRubyRuntime extends Runtime {
         container.runScriptlet(in, "incongnito-jruby.rb");
 
         incognito = (RubyObject)container.get("jruby_incognito");
-    }
-
-    @Override
-    protected String objIdentifier() {
-        return JRUBY_IDENTIFIER;
     }
 
     @Override
@@ -52,7 +47,6 @@ public class JRubyRuntime extends Runtime {
 
     @Override
     public MetaObject execMethod(MetaObject target, String name, List args) {
-System.out.println("JRubyRuntime.execMethod: target: " + target + " - name: " + name + " - args: " + args);
         return wrap(((ScriptingContainer) runtime).callMethod(
                 target.getTargetObject(), name, args.toArray()));
     }
@@ -66,32 +60,19 @@ System.out.println("JRubyRuntime.execMethod: target: " + target + " - name: " + 
 
     @Override
     public Type typeof(Object obj) {
-System.out.println("JRubyRuntime.typeof: obj: " + obj);
-
-System.out.println("\t1");
+        if ( obj == null ) return null;
         if ( obj instanceof String ) return Type.PRIMITIVE;
-System.out.println("\t2");
-        if ( obj instanceof Integer ) return Type.PRIMITIVE;
-System.out.println("\t3");
-        if ( obj instanceof Float ) return Type.PRIMITIVE;
-System.out.println("\t4");
-        if ( obj instanceof Double ) return Type.PRIMITIVE;
-System.out.println("\t5");
+        if ( obj instanceof Number ) return Type.PRIMITIVE;
+        if ( obj instanceof RubyArray ) return Type.ARRAY;
+        if ( obj instanceof RubyHash ) return Type.HASH;
+        if ( obj instanceof RubyProc ) return Type.EXECUTABLE;
         if ( obj instanceof RubyObject ) {
-System.out.println("\t6");
             RubyObject rObj = (RubyObject) obj;
             String rubyClassName = rObj.getType().getName();
-System.out.println("\t7");
             if ( rubyClassName.equals("Set") ) return Type.SET;
             else if ( rubyClassName.equals("DateTime") ) return Type.DATE;
             else return Type.OBJECT;
         }
-        if ( obj instanceof RubyArray ) return Type.ARRAY;
-System.out.println("\t8");
-        if ( obj instanceof RubyHash ) return Type.HASH;
-System.out.println("\t9");
-        if ( obj instanceof RubyProc ) return Type.EXECUTABLE;
-System.out.println("\t10");
         return null;
     }
 
@@ -113,5 +94,10 @@ System.out.println("\t10");
     @Override
     public Object dateProxy(MetaObject obj) {
         return ((ScriptingContainer)runtime).callMethod(incognito, "create_ruby_date", new Object[] {obj});
+    }
+
+    @Override
+    public boolean ownsObject(Object obj) {
+        return obj.getClass().getName().startsWith(JRUBY_IDENTIFIER);
     }
 }

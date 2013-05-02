@@ -11,6 +11,7 @@ import org.microsauce.incognito.*
 import org.microsauce.incognito.rhino.*
 import org.microsauce.incognito.jruby.*
 
+
 //
 // begin rhino
 //
@@ -111,9 +112,9 @@ println "\tmeth_with_args => ${val} - type - ${val.getClass()}"
 println "initialize incognito . . ."
 def incognito = new Incognito()
 println "\tinit rhino . . ."
-incognito.registerRuntime(new RhinoRuntime(null, jsContext))
+incognito.registerRuntime(new RhinoRuntime(jsContext))
 println "\tinit jruby . . ."
-incognito.registerRuntime(new JRubyRuntime(container, null))
+incognito.registerRuntime(new JRubyRuntime(container))
 
 println "create ruby proxy for js . . ."
 def js_rubyProxy = incognito.assumeIdentity(Lang.RUBY, jsObject)
@@ -156,7 +157,7 @@ try {
     ctx.evaluateString(jsContext, '''
        out.println("list the rb array elements in js:");
        rb_jsProxy.array.map(function(x) {
-          out.println(x);
+          out.println("=================================================================================================:" + x);
        });
     ''', 'test.js', 1, null)
 } finally {

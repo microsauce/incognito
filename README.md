@@ -15,12 +15,17 @@ supported runtime.  It defines proxies to enable idiomatic usage of these object
 include primitives (strings/integers/floating point), objects, executable types (functions/lambdas/etc), common data structures
 (arrays, hashes, sets), dates, and method/function/lambda/etc invocation.
 
+### strategy
+Leverage, as much as possible, existing support for Java interoperability (particularly with collections) in proxy
+design.
+
 ### status and roadmap
 Incognito is currently pre-alpha software.  Proposed roadmap:
 * 0.1 - jruby, groovy, rhino, runtime adaptors and proxies
 * 0.2 - jython
-* 0.3 - guice style polyglot IOC
-* 1.0
+* 1.0 - performance optimizations / polishing
+* 1.1 - guice style polyglot IOC
+* 1.2 - Clojure, P8 / Quercus
 
 ### proposed syntax:
 ```ruby

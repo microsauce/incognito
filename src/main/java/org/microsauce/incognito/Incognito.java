@@ -7,11 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Incognito {
 
     private Map<Lang,Runtime> runtimeByLang;
-    private Map<String,Runtime> runtimeByPkg;
+//    private Map<String,Runtime> runtimeByPkg;
 
     public Incognito() {
         runtimeByLang = new ConcurrentHashMap<Lang, Runtime>();
-        runtimeByPkg  = new ConcurrentHashMap<String, Runtime>();
+//        runtimeByPkg  = new ConcurrentHashMap<String, Runtime>();
     }
 
     public void registerRuntime(Runtime runtime) {
@@ -38,17 +38,17 @@ public class Incognito {
     }
 
     private Runtime sourceRuntime(Object rawObject) {
-        String packageName = rawObject.getClass().getPackage().getName();
-        Runtime rt = runtimeByPkg.get(packageName);
-        if ( rt == null ) {
-            for (Runtime thisRt : runtimeByLang.values()) {
-                if (packageName.startsWith(thisRt.objIdentifier()) ) {  // objIdentifer i.e. 'org.jruby'
-                    runtimeByPkg.put(packageName, thisRt);
-                    rt = thisRt;
-                    break;
-                }
-            }
+
+        if ( rawObject == null ) return null;
+        if ( rawObject instanceof Number ) return null;
+        if ( rawObject instanceof String ) return null;
+
+        for (Runtime thisRt : runtimeByLang.values()) {
+            if ( thisRt.ownsObject(rawObject) ) return thisRt;
         }
+        // this is a non-primitive java object - use GROOVY if available
+        Runtime rt = runtimeByLang.get(Lang.GROOVY);
+        if ( rt == null ) throw new RuntimeException("No suitable runtime is registered for class " + rawObject.getClass());
         return rt;
     }
 

@@ -1,11 +1,18 @@
 package org.microsauce.incognito;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
 
+/**
+ * This class is an adaptor that defines a standard interface for interacting
+ * with disparate language runtimes.
+ *
+ * @author microsauce
+ */
 public abstract class Runtime {
 
     public static enum RT {
@@ -24,20 +31,14 @@ public abstract class Runtime {
     protected Lang lang;
     protected Object runtime;
 
-    protected Object scope;
     private boolean initialized = false;
 
-    public Runtime(Object runtime, Object scope) {
+    public Runtime(Object runtime) {
         this.runtime = runtime;
-        this.scope = scope;
     }
 
     public Lang getLang() {
         return lang;
-    }
-
-    public Object getScope() {
-        return scope;
     }
 
     public void initialize() {
@@ -49,21 +50,15 @@ public abstract class Runtime {
 
     protected abstract void doInitialize();
 
-    protected abstract String objIdentifier();     // see Incognito.sourceRuntime
+//    protected abstract String objIdentifier();
 
     //
     // object
     //
 
-    // property access JS
     public abstract MetaObject getProp(MetaObject target, String name);
-    /*
-        type = typeof(target)
-     */
     public abstract void setProp(MetaObject target, String name, MetaObject value);
-
-    // method invocation
-    public abstract MetaObject execMethod(MetaObject target, String name, List args);// TODO runtime will handle args and return value
+    public abstract MetaObject execMethod(MetaObject target, String name, List args);
 
     //
     // executable
@@ -81,7 +76,12 @@ public abstract class Runtime {
         if ( Type.PRIMITIVE.equals(type) ) {
             return new MetaObject(Type.PRIMITIVE, this, obj);
         } else if (Type.ARRAY.equals(type)) {
-            return new MetaObject<List>(Type.ARRAY, this, (List)obj);
+            return new MetaObject<List>(Type.ARRAY, this, (List)obj) {
+                public Object conversion() {
+                    if ( object instanceof List ) return object;
+                    else return Arrays.asList(object);
+                }
+            };
         } else if (Type.HASH.equals(type)) {
             return new MetaObject<Map>(Type.HASH, this, (Map)obj);
         } else if (Type.SET.equals(type)) {
@@ -123,8 +123,13 @@ public abstract class Runtime {
     public abstract Object dateProxy(MetaObject obj);
 
     public Object proxy(MetaObject obj) {
-System.out.println("proxy: " + obj);
-System.out.println("proxy.type: " + obj.getType().name());
+//System.out.println("proxy: " + obj);
+//System.out.println("proxy.target: " + obj.getTargetObject());
+//if ( obj.getTargetObject() != null )
+//    System.out.println("proxy.target.class: " + obj.getTargetObject().getClass());
+//System.out.println("proxy.type: " + obj.getType().name());
+//if ( obj.getTargetObject() instanceof RubyEnumerator )
+//    new Exception().printStackTrace();
 
         if ( obj == null ) return obj;
 
@@ -149,5 +154,7 @@ System.out.println("proxy.type: " + obj.getType().name());
     public RT getId() {
         return id;
     }
+
+    public abstract boolean ownsObject(Object obj);
 
 }
