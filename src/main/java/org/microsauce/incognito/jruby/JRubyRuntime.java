@@ -15,10 +15,11 @@ public class JRubyRuntime extends Runtime {
 
     private static String JRUBY_IDENTIFIER = "org.jruby";
 
-    private RubyModule incognitoModule;
+    private RubyObject incognito;
 
-    public JRubyRuntime(Lang lang, Object runtime, Object scope) {
-        super(lang, runtime, scope);
+    public JRubyRuntime(Object runtime, Object scope) {
+        super(runtime, scope);
+        lang = Lang.RUBY;
         id = RT.JRUBY;
     }
 
@@ -29,7 +30,7 @@ public class JRubyRuntime extends Runtime {
                 this.getClass().getClassLoader().getResourceAsStream("incognito-jruby.rb");
         container.runScriptlet(in, "incongnito-jruby.rb");
 
-        incognitoModule = (RubyModule)container.get("Incognito");
+        incognito = (RubyObject)container.get("jruby_incognito");
     }
 
     @Override
@@ -51,53 +52,66 @@ public class JRubyRuntime extends Runtime {
 
     @Override
     public MetaObject execMethod(MetaObject target, String name, List args) {
+System.out.println("JRubyRuntime.execMethod: target: " + target + " - name: " + name + " - args: " + args);
         return wrap(((ScriptingContainer) runtime).callMethod(
-                target.getTargetObject(), name, args));
+                target.getTargetObject(), name, args.toArray()));
     }
 
     @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
         args.add(0,target.getTargetObject());
         return wrap(((ScriptingContainer) runtime).callMethod(
-                incognitoModule, "exec_proc", args));
+                incognito, "exec_proc", args));
     }
 
     @Override
     public Type typeof(Object obj) {
+System.out.println("JRubyRuntime.typeof: obj: " + obj);
+
+System.out.println("\t1");
         if ( obj instanceof String ) return Type.PRIMITIVE;
+System.out.println("\t2");
         if ( obj instanceof Integer ) return Type.PRIMITIVE;
+System.out.println("\t3");
         if ( obj instanceof Float ) return Type.PRIMITIVE;
+System.out.println("\t4");
         if ( obj instanceof Double ) return Type.PRIMITIVE;
+System.out.println("\t5");
         if ( obj instanceof RubyObject ) {
+System.out.println("\t6");
             RubyObject rObj = (RubyObject) obj;
             String rubyClassName = rObj.getType().getName();
+System.out.println("\t7");
             if ( rubyClassName.equals("Set") ) return Type.SET;
             else if ( rubyClassName.equals("DateTime") ) return Type.DATE;
             else return Type.OBJECT;
         }
         if ( obj instanceof RubyArray ) return Type.ARRAY;
+System.out.println("\t8");
         if ( obj instanceof RubyHash ) return Type.HASH;
+System.out.println("\t9");
         if ( obj instanceof RubyProc ) return Type.EXECUTABLE;
+System.out.println("\t10");
         return null;
     }
 
     @Override
     public Object dateConversion(Object date) {
-        return ((ScriptingContainer)runtime).callMethod(incognitoModule, "convert_date", new Object[] {date});
+        return ((ScriptingContainer)runtime).callMethod(incognito, "convert_date", new Object[] {date});
     }
 
     @Override
     public Object objectProxy(MetaObject obj) {
-        return ((ScriptingContainer)runtime).callMethod(incognitoModule, "create_obj_proxy", new Object[] {obj});
+        return ((ScriptingContainer)runtime).callMethod(incognito, "create_obj_proxy", new Object[] {obj, this});
     }
 
     @Override
     public Object executableProxy(MetaObject obj) {
-        return ((ScriptingContainer)runtime).callMethod(incognitoModule, "create_exec_proxy", new Object[] {obj});
+        return ((ScriptingContainer)runtime).callMethod(incognito, "create_exec_proxy", new Object[] {obj, this});
     }
 
     @Override
     public Object dateProxy(MetaObject obj) {
-        return ((ScriptingContainer)runtime).callMethod(incognitoModule, "create_ruby_date", new Object[] {obj});
+        return ((ScriptingContainer)runtime).callMethod(incognito, "create_ruby_date", new Object[] {obj});
     }
 }

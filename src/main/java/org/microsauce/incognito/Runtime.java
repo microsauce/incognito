@@ -27,8 +27,7 @@ public abstract class Runtime {
     protected Object scope;
     private boolean initialized = false;
 
-    public Runtime(Lang lang, Object runtime, Object scope) {
-        this.lang = lang;
+    public Runtime(Object runtime, Object scope) {
         this.runtime = runtime;
         this.scope = scope;
     }
@@ -99,36 +98,36 @@ public abstract class Runtime {
             return new MetaObject(Type.OBJECT, this, obj);
         }
     }
-    public abstract Object dateConversion(Object date);  // convert to millis sinse unix epoc  ??? nope
+    public abstract Object dateConversion(Object date);
     public abstract Object objectProxy(MetaObject obj);
     public abstract Object executableProxy(MetaObject obj);
     public Object arrayProxy(MetaObject obj) {
-        return (List)newProxyInstance(
+        List array = (List) newProxyInstance(
                 this.getClass().getClassLoader(),
                 new Class[] { List.class },
                 new ListProxy(obj, this));
+        return array;
     }
     public Object hashProxy(MetaObject obj) {
-        return (Map)newProxyInstance(
+        return (Map) newProxyInstance(
                 this.getClass().getClassLoader(),
                 new Class[] { Map.class },
                 new MapProxy(obj, this));
     }
     public Object dataSetProxy(MetaObject obj) {
-        return (Set)newProxyInstance(
+        return (Set) newProxyInstance(
                 this.getClass().getClassLoader(),
                 new Class[] { Set.class },
                 new SetProxy(obj, this));
     }
     public abstract Object dateProxy(MetaObject obj);
 
-    // TODO subclass scriptablelist/map override: public void put(int index, Scriptable start, Object value)
-    // update underlying collection as well:
-    // this.javaObject.add
-    // this.javaObject.remove
-
-
     public Object proxy(MetaObject obj) {
+System.out.println("proxy: " + obj);
+System.out.println("proxy.type: " + obj.getType().name());
+
+        if ( obj == null ) return obj;
+
         Type type = obj.getType();
         if ( Type.PRIMITIVE.equals(type) ) {
             return obj.getTargetObject();
@@ -145,6 +144,10 @@ public abstract class Runtime {
         } else {
             return objectProxy(obj);
         }
+    }
+
+    public RT getId() {
+        return id;
     }
 
 }

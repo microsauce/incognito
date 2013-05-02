@@ -1,16 +1,7 @@
 
 importPackage(org.microsauce.incognito)
 
-global.Incognito = {
-
-    objectProxy : function(metaObject, runtime) {
-        var originRuntime = metaObject.originRuntime;
-        return function(args) {
-            return originRuntime.exec(
-                metaObject,
-                originRuntime.scope,
-                incognitoPrepareArguments(args, originRuntime, runtime));
-    },
+var rhinoIncognito = {
 
     executableProxy : function(metaObject, runtime) {
         if ( metaObject.runtime.id.equals(Runtime.RT.RHINO) ) {
@@ -22,7 +13,7 @@ global.Incognito = {
                     metaObject,
                     originRuntime.scope,
                     incognitoPrepareArguments(args, originRuntime, runtime));
-                }
+            }
         }
     },
 
@@ -52,34 +43,3 @@ global.Incognito = {
         });
     }
 }
-
-//global.incongnitoRhinoExecutableProxy = function(metaObject, runtime) {
-//    var originRuntime = metaObject.originRuntime;
-//    return function(args) {
-//        return originRuntime.exec(
-//            metaObject,
-//            originRuntime.scope,
-//            incognitoPrepareArguments(args, originRuntime, runtime));
-//    }
-//}
-//
-//global.incongnitoRhinoDate = function(cd) {
-//    return new Date(cd.year, cd.month, cd.dayOfMonth, cd.hour, cd.minute, cd.second, cd.millis);
-//}
-//
-//global.incognitoConvertRhinoDate() = function(date) {
-//    return new CommonDate(
-//        date.getYear(),
-//        date.getMonth()+1,
-//        date.getDate(),
-//        date.getHours()+1,
-//        date.getMinutes(),
-//        date.getSeconds(),
-//        date.getMilliseconds());
-//}
-//
-//global.incognitoPrepareArguments = function(args, originRuntime, destRuntime) {
-//    return args.map(function(arg) {
-//        return originRuntime.proxy(destRuntime.wrap(arg));
-//    });
-//}

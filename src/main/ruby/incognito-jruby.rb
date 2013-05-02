@@ -1,4 +1,3 @@
-# TODO override array/hash methods
 
 require 'java'
 require 'date'
@@ -6,7 +5,7 @@ require 'date'
 java_import org.microsauce.incognito.CommonDate
 java_import org.microsauce.incognito.Runtime
 
-module Incognito
+class JRubyIncognito
 
   class JRubyObjectProxy
 
@@ -16,20 +15,20 @@ module Incognito
     end
 
     # TODO review this.  Might want to be more selective on what we un-define
-    instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$)/ }
+    instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$|^kind_of\?$)/ }
 
     protected
       def method_missing(name, *args, &block)
-        if origin_runtime.id == Runtime::RT::RUBY
-          @meta_object.target.send name, *args
+        if @meta_object.origin_runtime.id == Runtime::RT::JRUBY
+          return @meta_object.target.send name, *args
         else
-          @meta_object.origin_runtime.exec_method name, prepare_arguments(args)
+          return @this_runtime.proxy(@meta_object.origin_runtime.exec_method(@meta_object, name, prepare_arguments(args)))
         end
       end
 
       def prepare_arguments(args)
         args.collect { |it|
-          @meta_object.origin_runtime.proxy(it)
+          @meta_object.origin_runtime.proxy(@this_runtime.wrap(it))
         }
       end
   end
@@ -68,4 +67,6 @@ module Incognito
     return p.call(*args)
   end
 
-end # module Incognito
+end # class Incognito
+
+jruby_incognito = JRubyIncognito.new

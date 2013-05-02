@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 // TODO null checks
-// TODO proxy should use adaptor for foreign objects only
 public class Incognito {
 
     private Map<Lang,Runtime> runtimeByLang;

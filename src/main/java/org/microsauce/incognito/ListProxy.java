@@ -12,6 +12,7 @@ public class ListProxy extends CollectionProxy {
     public ListProxy(MetaObject<List> target, Runtime dest) {
         super(target, dest);
         this.trgList = target.getTargetObject();
+        this.trg = target;
     }
 
     public Object get(int ndx) {

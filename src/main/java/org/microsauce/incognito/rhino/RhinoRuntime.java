@@ -23,10 +23,10 @@ public class RhinoRuntime extends Runtime {
     private NativeFunction executableProxy;
     private NativeFunction convertDate;
     private NativeFunction dateProxy;
-    private NativeFunction objectProxy;
 
-    public RhinoRuntime(Lang lang, Object runtime, Object scope) {
-        super(lang, runtime, scope);
+    public RhinoRuntime(Object runtime, Object scope) {
+        super(runtime, scope);
+        lang = Lang.JAVASCRIPT;
         id = RT.RHINO;
     }
 
@@ -42,11 +42,11 @@ public class RhinoRuntime extends Runtime {
                 ctx.evaluateReader((ScriptableObject)scope, reader, "incognito-rhino.js", 1, null);
             } catch (IOException e) {throw new RuntimeException(e);}
 
-            incognito = (NativeObject)((ScriptableObject) scope).get("Incognito");
+            incognito = (NativeObject)((ScriptableObject) scope).get("rhinoIncognito");
             executableProxy = (NativeFunction)incognito.get("executableProxy");
             convertDate = (NativeFunction)incognito.get("convertDate");
             dateProxy = (NativeFunction)incognito.get("dateProxy");
-            objectProxy = (NativeFunction)incognito.get("objectProxy");
+
         } finally {
             if (ctx != null) ctx.exit();
         }
@@ -71,8 +71,10 @@ public class RhinoRuntime extends Runtime {
     @Override
     public MetaObject execMethod(MetaObject target, String name, List args) {
         ScriptableObject thisScope = (ScriptableObject) target.getTargetObject();
-        MetaObject metaFunc = getProp(target, name);
-        return doExec((NativeFunction)metaFunc.getTargetObject(), thisScope, args);
+        MetaObject metaProperty = getProp(target, name);
+        if ( metaProperty.getTargetObject() instanceof NativeFunction )
+            return doExec((NativeFunction)metaProperty.getTargetObject(), thisScope, args);
+        else return metaProperty;
     }
 
     @Override
@@ -97,6 +99,9 @@ public class RhinoRuntime extends Runtime {
 
     @Override
     public Type typeof(Object obj) {
+
+        if (obj == null) return null;
+
         if ( obj instanceof String ) return Type.PRIMITIVE;
         if ( obj instanceof Integer ) return Type.PRIMITIVE;
         if ( obj instanceof Float ) return Type.PRIMITIVE;

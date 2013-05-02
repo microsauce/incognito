@@ -1,4 +1,5 @@
 import org.jruby.RubyObject
+import org.mozilla.javascript.Context
 import org.mozilla.javascript.ImporterTopLevel
 import org.mozilla.javascript.ScriptableObject
 import org.mozilla.javascript.NativeFunction
@@ -6,7 +7,9 @@ import org.mozilla.javascript.NativeFunction
 import org.jruby.embed.LocalContextScope
 import org.jruby.embed.LocalVariableBehavior
 import org.jruby.embed.ScriptingContainer
-
+import org.microsauce.incognito.*
+import org.microsauce.incognito.rhino.*
+import org.microsauce.incognito.jruby.*
 
 //
 // begin rhino
@@ -27,9 +30,9 @@ try {
                 name : 'foo fee'
             },
             foobify : function(a) {
-                return 'foo-'+this.name+'-ify - ' + a;
+                return 'foo-'+this.name+'-ify - ' + a.name;
             },
-            array : ['one', 2]
+            array : ['one', 2, [1, 'two', {id:123}]]
         }
 
     '''
@@ -102,6 +105,63 @@ println "\nMy rbObject:"
 def val = container.callMethod(rbObject, 'meth_with_args', ['Jimmy', 8] as Object[])
 println "\tmeth_with_args => ${val} - type - ${val.getClass()}"
 
+//
+// incognito - js -> jruby
+//
+println "initialize incognito . . ."
+def incognito = new Incognito()
+println "\tinit rhino . . ."
+incognito.registerRuntime(new RhinoRuntime(null, jsContext))
+println "\tinit jruby . . ."
+incognito.registerRuntime(new JRubyRuntime(container, null))
+
+println "create ruby proxy for js . . ."
+def js_rubyProxy = incognito.assumeIdentity(Lang.RUBY, jsObject)
+
+container.put('js_rubyProxy', js_rubyProxy)
+container.runScriptlet(new ByteArrayInputStream('''
+    puts "lets try the proxy in ruby . . ."
+    class Kid
+        attr_accessor :name
+        def initialize(name)
+            @name = name
+        end
+    end
+
+    js_rubyProxy.array.each do |x|
+        if x.respond_to?('each')
+            x.each do |y|
+                if y.kind_of? JRubyIncognito::JRubyObjectProxy
+                    puts "@!@!@!!@!!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@!@ id: #{y.id}"
+                else
+                    puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #{y}"
+                end
+            end
+        else
+            puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #{x}"
+        end
+    end
+    puts "#{js_rubyProxy.foobify(Kid.new('RubySteve'))}"
+'''.bytes), "script.rb")
+
+//
+// incongnito jruby -> rhino
+//
+println "rb assume identity rhino . . ."
+def rb_jsProxy = incognito.assumeIdentity(Lang.JAVASCRIPT, rbObject)
+try {
+    ctx = Context.enter()
+    jsContext.put('rb_jsProxy', jsContext, rb_jsProxy)
+    jsContext.put('out', jsContext, System.out)
+    ctx.evaluateString(jsContext, '''
+       out.println("list the rb array elements in js:");
+       rb_jsProxy.array.map(function(x) {
+          out.println(x);
+       });
+    ''', 'test.js', 1, null)
+} finally {
+    ctx.exit()
+}
 
 //
 // proxies
