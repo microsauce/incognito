@@ -1,7 +1,7 @@
 incognito
 =========
 
-Facilitate idiomatic interoperability of dynamic languages on the JVM.
+Facilitating idiomatic interoperability of dynamic languages on the JVM.
 
 ### the problem
 Many languages target the JVM.  Most of these languages have excellent interoperability with Java.  The problem is
@@ -17,7 +17,7 @@ include primitives (strings/integers/floating point), objects, executable types 
 
 ### strategy
 Leverage, as much as possible, existing support for Java interoperability (particularly with collections) in proxy
-design.
+implementations.
 
 ### status and roadmap
 Incognito is currently pre-alpha software.  Proposed roadmap:
@@ -25,7 +25,6 @@ Incognito is currently pre-alpha software.  Proposed roadmap:
 * 0.2 - jython
 * 1.0 - performance optimizations / polishing
 * 1.1 - guice style polyglot IOC
-* 1.2 - Clojure, P8 / Quercus
 
 ### proposed syntax:
 ```ruby
