@@ -17,9 +17,13 @@ class JRubyIncognito
     # TODO review this.  Might want to be more selective on what we un-define
     instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$|^kind_of\?$)/ }
 
+    def respond_to?(method, include_private = false)
+      @meta_object.target_object.respond_to?(method, include_private)
+    end
+
     protected
       def method_missing(name, *args, &block)
-        if @meta_object.origin_runtime.id == Runtime::RT::JRUBY
+        if @meta_object.origin_runtime.id == Runtime::ID::JRUBY
           return @meta_object.target.send name, *args
         else
           return @this_runtime.proxy(@meta_object.origin_runtime.exec_method(@meta_object, name, prepare_arguments(args)))

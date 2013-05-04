@@ -15,19 +15,19 @@ import static java.lang.reflect.Proxy.newProxyInstance;
  */
 public abstract class Runtime {
 
-    public static enum RT {
+    public static enum ID {
         JRUBY("jruby"), RHINO("rhino"), GROOVY("groovy");
 
         private String name;
 
-        RT(String name) {
+        ID(String name) {
             this.name = name;
         }
 
         public String getName() {return name;}
     }
 
-    protected RT id;
+    protected ID id;
     protected Lang lang;
     protected Object runtime;
 
@@ -49,8 +49,6 @@ public abstract class Runtime {
     }
 
     protected abstract void doInitialize();
-
-//    protected abstract String objIdentifier();
 
     //
     // object
@@ -122,7 +120,7 @@ public abstract class Runtime {
     }
     public abstract Object dateProxy(MetaObject obj);
 
-    public Object proxy(MetaObject obj) {
+    public Object proxy(MetaObject obj) { // TODO
 //System.out.println("proxy: " + obj);
 //System.out.println("proxy.target: " + obj.getTargetObject());
 //if ( obj.getTargetObject() != null )
@@ -151,7 +149,7 @@ public abstract class Runtime {
         }
     }
 
-    public RT getId() {
+    public ID getId() {
         return id;
     }
 

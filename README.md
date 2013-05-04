@@ -9,8 +9,8 @@ Many languages target the JVM.  Most of these languages have excellent interoper
 solve this problem.
 
 ### overview
-Incongnito is a library that enables objects created in supported JVM runtimes to enter other JVM runtimes 'incognito'
--- assuming an identity natural to that runtime.  The library defines adaptors to standardize access to objects in each
+Incognito is a library that enables objects created in supported JVM runtimes to enter other JVM runtimes 'incognito'
+-- assuming an identity native to that runtime.  The library defines adaptors to standardize access to objects in each
 supported runtime.  It defines proxies to enable idiomatic usage of these objects in receiving runtimes. Support will
 include primitives (strings/integers/floating point), objects, executable types (functions/lambdas/etc), common data structures
 (arrays, hashes, sets), dates, and method/function/lambda/etc invocation.
@@ -34,9 +34,9 @@ incognito.registerRuntime(JRubyRuntime.new(scriptingContainer))
 
 # . . .
 
-js_array_proxy = incognito.assume_identity js_array, RUBY
+js_array_proxy = incognito.assume_identity js_array, JRUBY
 # -- and/or --
-js_array_proxy = js_array.assume_identity RUBY
+js_array_proxy = js_array.assume_identity JRUBY
 
 js_array_proxy.each do |x|
     puts x

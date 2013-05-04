@@ -21,7 +21,7 @@ public class RhinoRuntime extends Runtime {
     public RhinoRuntime(Object runtime) {
         super(runtime);
         lang = Lang.JAVASCRIPT;
-        id = RT.RHINO;
+        id = ID.RHINO;
     }
 
     @Override

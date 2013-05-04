@@ -20,7 +20,7 @@ public class JRubyRuntime extends Runtime {
     public JRubyRuntime(Object runtime) {
         super(runtime);
         lang = Lang.RUBY;
-        id = RT.JRUBY;
+        id = ID.JRUBY;
     }
 
     @Override

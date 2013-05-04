@@ -7,15 +7,13 @@ import org.microsauce.incognito.Lang
 import org.microsauce.incognito.MetaObject
 import org.microsauce.incognito.Runtime
 import org.microsauce.incognito.Type
-import org.mozilla.javascript.NativeArray
-import org.mozilla.javascript.NativeObject
 
 class GroovyRuntime extends Runtime {
 
     public GroovyRuntime(Object runtime) {
         super(runtime)
         lang = Lang.GROOVY
-        id = org.microsauce.incognito.Runtime.RT.GROOVY
+        id = ID.GROOVY
     }
 
     @Override
@@ -42,6 +40,7 @@ class GroovyRuntime extends Runtime {
     }
 
     @Override
+    @CompileStatic
     Type typeof(Object obj) {
         if ( !obj ) return null
         if ( obj instanceof String ) return Type.PRIMITIVE
@@ -55,7 +54,7 @@ class GroovyRuntime extends Runtime {
 
     @Override
     @CompileStatic
-    Object dateConversion(Object date) { // TODO Joda time
+    Object dateConversion(Object date) {
         if ( !date )  return date
         DateTime dt = (DateTime) date
         new CommonDate(
@@ -69,8 +68,9 @@ class GroovyRuntime extends Runtime {
     }
 
     @Override
+    @CompileStatic
     Object objectProxy(MetaObject obj) {
-        // TODO
+        return new GroovyProxy(obj, this)
     }
 
     @Override
@@ -82,14 +82,52 @@ class GroovyRuntime extends Runtime {
     }
 
     @Override
+    @CompileStatic
     Object dateProxy(MetaObject obj) {
-        CommonDate cd = obj.getTargetObject()
+        CommonDate cd = (CommonDate)obj.getTargetObject()
         new DateTime(cd.year, cd.month, cd.dayOfMonth, cd.hour, cd.minute, cd.second)
     }
 
     @Override
+    @CompileStatic
     public boolean ownsObject(Object obj) {
         return obj instanceof GroovyObject
+    }
+
+    private class GroovyProxy implements GroovyInterceptable {
+        MetaObject obj
+        Runtime thisRuntime
+
+        @CompileStatic
+        GroovyProxy(MetaObject obj, Runtime rt) {this.obj = obj; thisRuntime = rt}
+
+        def invokeMethod(String name, args) {
+            Runtime oRuntime = obj.getOriginRuntime()
+            if ( oRuntime.id.equals(Runtime.ID.GROOVY) )
+                return obj.getTargetObject()."$name" *args
+            return thisRuntime.proxy(oRuntime.execMethod(obj, name, prepareArgs(args)))
+        }
+
+        def propertyMissing(String name, value) {
+            Runtime oRuntime = obj.getOriginRuntime()
+            if ( oRuntime.id.equals(Runtime.ID.GROOVY) )
+                obj.getTargetObject()."$name" = value
+            oRuntime.setProp(obj, name, thisRuntime.wrap(value))
+        }
+
+        def propertyMissing(String name) {
+            Runtime oRuntime = obj.getOriginRuntime()
+            if ( oRuntime.id.equals(Runtime.ID.GROOVY) )
+                return obj.getTargetObject()."$name"
+            return thisRuntime.proxy(oRuntime.getProp(obj, name))
+        }
+        @CompileStatic
+        private prepareArgs(args) {
+            args.collect {
+                Runtime oRuntime = obj.getOriginRuntime()
+                return oRuntime.proxy(thisRuntime.wrap(it))
+            }
+        }
     }
 
 }

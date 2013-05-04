@@ -4,7 +4,7 @@ importPackage(org.microsauce.incognito)
 var rhinoIncognito = {
 
     executableProxy : function(metaObject, runtime) {
-        if ( metaObject.runtime.id.equals(Runtime.RT.RHINO) ) {
+        if ( metaObject.runtime.id.equals(Runtime.ID.RHINO) ) {
             return metaObject.targetObject;
         } else {
             var originRuntime = metaObject.originRuntime;

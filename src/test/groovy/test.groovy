@@ -117,7 +117,7 @@ println "\tinit jruby . . ."
 incognito.registerRuntime(new JRubyRuntime(container))
 
 println "create ruby proxy for js . . ."
-def js_rubyProxy = incognito.assumeIdentity(Lang.RUBY, jsObject)
+def js_rubyProxy = incognito.assumeIdentity(Runtime.ID.JRUBY, jsObject)
 
 container.put('js_rubyProxy', js_rubyProxy)
 container.runScriptlet(new ByteArrayInputStream('''
@@ -149,7 +149,7 @@ container.runScriptlet(new ByteArrayInputStream('''
 // incongnito jruby -> rhino
 //
 println "rb assume identity rhino . . ."
-def rb_jsProxy = incognito.assumeIdentity(Lang.JAVASCRIPT, rbObject)
+def rb_jsProxy = incognito.assumeIdentity(Runtime.ID.RHINO, rbObject)
 try {
     ctx = Context.enter()
     jsContext.put('rb_jsProxy', jsContext, rb_jsProxy)

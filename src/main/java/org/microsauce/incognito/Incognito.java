@@ -6,29 +6,27 @@ import java.util.concurrent.ConcurrentHashMap;
 // TODO null checks
 public class Incognito {
 
-    private Map<Lang,Runtime> runtimeByLang;
-//    private Map<String,Runtime> runtimeByPkg;
+    private Map<Runtime.ID,Runtime> runtimeByID;
 
     public Incognito() {
-        runtimeByLang = new ConcurrentHashMap<Lang, Runtime>();
-//        runtimeByPkg  = new ConcurrentHashMap<String, Runtime>();
+        runtimeByID = new ConcurrentHashMap<Runtime.ID, Runtime>();
     }
 
     public void registerRuntime(Runtime runtime) {
-        runtimeByLang.put(runtime.getLang(), runtime); // TODO one RT per lang? not necessary
+        runtimeByID.put(runtime.getId(), runtime);
 
         runtime.initialize();
     }
 
-    public Object proxy(Lang lang, Object rawObject) {
-        Runtime rt = runtimeByLang.get(lang);
+    public Object proxy(Runtime.ID rtId, Object rawObject) {
+        Runtime rt = runtimeByID.get(rtId);
         if ( rt == null )
-            throw new RuntimeException("a runtime is not registered for lang: " + lang.getName());
+            throw new RuntimeException("runtime id " + rtId.getName() + " is not registered.");
         return rt.proxy(wrap(rawObject));
     }
 
-    public Object assumeIdentity(Lang lang, Object rawObject) {
-        return proxy(lang, rawObject);
+    public Object assumeIdentity(Runtime.ID rtId, Object rawObject) {
+        return proxy(rtId, rawObject);
     }
 
     private MetaObject wrap(Object rawObject) {
@@ -43,12 +41,12 @@ public class Incognito {
         if ( rawObject instanceof Number ) return null;
         if ( rawObject instanceof String ) return null;
 
-        for (Runtime thisRt : runtimeByLang.values()) {
+        for (Runtime thisRt : runtimeByID.values()) {
             if ( thisRt.ownsObject(rawObject) ) return thisRt;
         }
         // this is a non-primitive java object - use GROOVY if available
-        Runtime rt = runtimeByLang.get(Lang.GROOVY);
-        if ( rt == null ) throw new RuntimeException("No suitable runtime is registered for class " + rawObject.getClass());
+        Runtime rt = runtimeByID.get(Runtime.ID.GROOVY);
+        if ( rt == null ) throw new RuntimeException("no suitable runtime is registered for class " + rawObject.getClass());
         return rt;
     }
 

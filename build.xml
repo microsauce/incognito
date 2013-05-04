@@ -12,18 +12,22 @@
 	<target name="init" depends="clean">
 		<mkdir dir="${basedir}/target/classes" />
 	</target>
-	
-	<target name="compile" depends="init"
-			description="Compile Java sources">
 
-		<javac destdir="${basedir}/target/classes"
-			srcdir="${basedir}/src/main/java"
-			listfiles="true" source="1.7" target="1.7">
-			<classpath refid="build.classpath"/>
-		</javac>
-	</target>
-	
-	<target name="javaScript" depends="compile">
+    <target name="jointCompile" depends="init"
+            description="Joint compile Java/Groovy sources">
+        <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc">
+            <classpath refid="build.classpath"/>
+        </taskdef>
+
+        <groovyc destdir="${basedir}/target/classes"
+                 srcdir="${basedir}/src/main/java:${basedir}/src/main/groovy"
+                 listfiles="true">
+            <classpath refid="build.classpath"/>
+            <javac source="1.7" target="1.7" />
+        </groovyc>
+    </target>
+
+    <target name="javaScript" depends="jointCompile">
 	    <copy todir="${basedir}/target/classes">
 	    	<fileset dir="${basedir}/src/main/javascript">
 	    		<include name="*/**"/>
@@ -31,7 +35,7 @@
 	    </copy>
 	</target>
 
-    <target name="resources" depends="compile">
+    <target name="resources" depends="jointCompile">
         <copy todir="${basedir}/target/classes">
             <fileset dir="${basedir}/src/main/resources">
                 <include name="*/**"/>
@@ -39,7 +43,7 @@
         </copy>
     </target>
 
-	<target name="ruby" depends="compile">
+	<target name="ruby" depends="jointCompile">
 	    <copy todir="${basedir}/target/classes">
 	    	<fileset dir="${basedir}/src/main/ruby">
 	    		<include name="*/**"/>
@@ -47,7 +51,7 @@
 	    </copy>
 	</target>
 	
-	<target name="jar" depends="compile,javaScript,ruby,resources">
+	<target name="jar" depends="jointCompile,javaScript,ruby,resources">
 		<jar destfile="${basedir}/lib/incognito.jar"
 			basedir="${basedir}/target/classes" />
 	</target>
