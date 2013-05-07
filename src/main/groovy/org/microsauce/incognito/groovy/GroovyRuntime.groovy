@@ -7,6 +7,7 @@ import org.microsauce.incognito.Lang
 import org.microsauce.incognito.MetaObject
 import org.microsauce.incognito.Runtime
 import org.microsauce.incognito.Type
+import static org.microsauce.incognito.Runtime.ID
 
 class GroovyRuntime extends Runtime {
 
@@ -32,6 +33,24 @@ class GroovyRuntime extends Runtime {
     @Override
     MetaObject execMethod(MetaObject target, String name, List args) {
         wrap(target.targetObject."$name" *args)
+    }
+
+    @Override
+    boolean respondTo(MetaObject target, String methodName) {
+        def trg = target.getTargetObject()
+        def metaClass = target.getTargetObject().metaClass
+        def hasProperties = metaClass.hasProperty(trg, methodName)
+        def respondsTo = metaClass.respondsTo(trg, metaClass)
+        hasProperties || respondsTo
+    }
+
+    @Override
+    Collection members(MetaObject target) {
+        List members = []
+        def metaClass = target.getTargetObject().metaClass
+        members.addAll(metaClass.methods.name)
+        members.addAll(metaClass.properties.name)
+        members
     }
 
     @Override
@@ -70,7 +89,7 @@ class GroovyRuntime extends Runtime {
     @Override
     @CompileStatic
     Object objectProxy(MetaObject obj) {
-        return new GroovyProxy(obj, this)
+        (Object)new GroovyProxy(obj, this)
     }
 
     @Override
@@ -94,40 +113,5 @@ class GroovyRuntime extends Runtime {
         return obj instanceof GroovyObject
     }
 
-    private class GroovyProxy implements GroovyInterceptable {
-        MetaObject obj
-        Runtime thisRuntime
-
-        @CompileStatic
-        GroovyProxy(MetaObject obj, Runtime rt) {this.obj = obj; thisRuntime = rt}
-
-        def invokeMethod(String name, args) {
-            Runtime oRuntime = obj.getOriginRuntime()
-            if ( oRuntime.id.equals(Runtime.ID.GROOVY) )
-                return obj.getTargetObject()."$name" *args
-            return thisRuntime.proxy(oRuntime.execMethod(obj, name, prepareArgs(args)))
-        }
-
-        def propertyMissing(String name, value) {
-            Runtime oRuntime = obj.getOriginRuntime()
-            if ( oRuntime.id.equals(Runtime.ID.GROOVY) )
-                obj.getTargetObject()."$name" = value
-            oRuntime.setProp(obj, name, thisRuntime.wrap(value))
-        }
-
-        def propertyMissing(String name) {
-            Runtime oRuntime = obj.getOriginRuntime()
-            if ( oRuntime.id.equals(Runtime.ID.GROOVY) )
-                return obj.getTargetObject()."$name"
-            return thisRuntime.proxy(oRuntime.getProp(obj, name))
-        }
-        @CompileStatic
-        private prepareArgs(args) {
-            args.collect {
-                Runtime oRuntime = obj.getOriginRuntime()
-                return oRuntime.proxy(thisRuntime.wrap(it))
-            }
-        }
-    }
 
 }

@@ -26,7 +26,28 @@ public class IncognitoNativeJavaObject extends NativeJavaObject {
         Runtime oRuntime = target.getOriginRuntime();
         oRuntime.setProp(target, name, thisRuntime.wrap(value));
     }
+
+    public boolean has(String name, Scriptable start) {
+//System.out.println("RhinoJavaObject: has: " + name);
+        return target.getOriginRuntime().respondTo(target, name);
+    }
+
+    public boolean has(int index, Scriptable start) {
+//System.out.println("RhinoJavaObject: has: " + index);
+return false;
+    }
+
+
     public Object getDefaultValue(Class hint) {
         return target.toString();
     }
+
+    public Object[] getIds() {
+System.out.println("JSProxyObject: getIds: ");
+for (Object obj :  target.getOriginRuntime().members(target).toArray()) {
+System.out.println("\t"+obj);
+}
+        return target.getOriginRuntime().members(target).toArray();
+    }
+
 }

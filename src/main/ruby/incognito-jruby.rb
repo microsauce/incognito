@@ -4,6 +4,7 @@ require 'date'
 
 java_import org.microsauce.incognito.CommonDate
 java_import org.microsauce.incognito.Runtime
+java_import java.util.HashSet
 
 class JRubyIncognito
 
@@ -69,6 +70,18 @@ class JRubyIncognito
 
   def exec_proc(p, *args)
     return p.call(*args)
+  end
+
+  def target_respond_to(target, identifier)
+    return target.respond_to?(identifier)
+  end
+
+  def target_members(target)
+    set = HashSet.new
+    target.methods.each { |it|
+      set.add(it.to_s.tr('^A-Za-z0-9_', ''))
+    }
+    set
   end
 
 end # class Incognito

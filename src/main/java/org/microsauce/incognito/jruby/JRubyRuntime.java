@@ -9,6 +9,7 @@ import org.microsauce.incognito.Type;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class JRubyRuntime extends Runtime {
@@ -49,6 +50,18 @@ public class JRubyRuntime extends Runtime {
     public MetaObject execMethod(MetaObject target, String name, List args) {
         return wrap(((ScriptingContainer) runtime).callMethod(
                 target.getTargetObject(), name, args.toArray()));
+    }
+
+    @Override
+    public boolean respondTo(MetaObject target, String methodName) {
+        return (Boolean)((ScriptingContainer) runtime).callMethod(
+                incognito, "target_respond_to", new Object[] {target.getTargetObject(), methodName});
+    }
+
+    @Override
+    public Collection members(MetaObject target) {
+        return (Collection)((ScriptingContainer) runtime).callMethod(
+                incognito, "target_members", new Object[] {target.getTargetObject()});
     }
 
     @Override

@@ -1,16 +1,24 @@
-import static org.microsauce.incognito.test.Polly.groovy
-import static org.microsauce.incognito.test.Polly.jruby
-import static org.microsauce.incognito.test.Polly.rhino
+import static org.microsauce.incognito.Polly.*
+import static org.microsauce.incognito.Runtime.ID.*
 
 rhino [:], ''
 
-rhino([name: 'jimmy'], '''
+def value = rhino([name: 'jimmy'], '''
     println('hello ' + name);
-''')
+    var obj = {
+        name: 'Jimmy',
+        age: 7
+    };
+    obj;
+''', GROOVY)
+println "rhino000000 value: ${value.name} - ${value.age}"
 
-jruby([name: 'jimmy'], '''
+def jrubyValue = jruby([name: 'jimmy'], '''
     puts "hey dare #{name} !!!"
+    1+2
 ''')
+println "jruby value: $jrubyValue"
+
 
 rhino([name: 'jimmy'], '''
     println('hello ' + name);
@@ -31,6 +39,3 @@ groovy([age:7]) {
     println "groovy age  $age"
 }
 
-rhino [foo:'bar'], {'''
-    println('foo');
-'''}

@@ -1,9 +1,6 @@
 package org.microsauce.incognito;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
 
@@ -57,6 +54,8 @@ public abstract class Runtime {
     public abstract MetaObject getProp(MetaObject target, String name);
     public abstract void setProp(MetaObject target, String name, MetaObject value);
     public abstract MetaObject execMethod(MetaObject target, String name, List args);
+    public abstract boolean respondTo(MetaObject target, String methodName);
+    public abstract Collection members(MetaObject target); // member names
 
     //
     // executable

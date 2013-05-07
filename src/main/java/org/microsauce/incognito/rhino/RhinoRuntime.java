@@ -67,6 +67,18 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
+    public boolean respondTo(MetaObject target, String methodName) {
+        ScriptableObject sObject = (ScriptableObject)target.getTargetObject();
+        return sObject.has(methodName, sObject);
+    }
+
+    @Override
+    public Collection members(MetaObject target) {
+        ScriptableObject sObject = (ScriptableObject)target.getTargetObject();
+        return Arrays.asList(sObject.getIds());
+    }
+
+    @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
         return doExec((NativeFunction)target.getTargetObject(), (ScriptableObject) runtime, args);
     }
