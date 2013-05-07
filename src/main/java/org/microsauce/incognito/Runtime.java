@@ -56,6 +56,8 @@ public abstract class Runtime {
     public abstract MetaObject execMethod(MetaObject target, String name, List args);
     public abstract boolean respondTo(MetaObject target, String methodName);
     public abstract Collection members(MetaObject target); // member names
+    public abstract MetaObject getMember(MetaObject target, String identifier);     // for the benefit of JS
+    public abstract MetaObject execMember(MetaObject target, Object executionContext, List args);    // for the benefit of JS
 
     //
     // executable
@@ -140,6 +142,8 @@ public abstract class Runtime {
         } else if (Type.SET.equals(type)) {
             return dataSetProxy(obj);
         } else if (Type.EXECUTABLE.equals(type)) {
+            return executableProxy(obj);
+        } else if (Type.METHOD.equals(type)) {
             return executableProxy(obj);
         } else if (Type.DATE.equals(type)) {
             return dateProxy(obj);

@@ -48,7 +48,6 @@ public class JRubyRuntime extends Runtime {
 
     @Override
     public MetaObject execMethod(MetaObject target, String name, List args) {
-System.out.println("jrubyruntime: execMethod: " + name + " - " + args);
         return wrap(((ScriptingContainer) runtime).callMethod(
                 target.getTargetObject(), name, args.toArray()));
     }
@@ -66,10 +65,31 @@ System.out.println("jrubyruntime: execMethod: " + name + " - " + args);
     }
 
     @Override
+    public MetaObject getMember(MetaObject target, String identifier) {
+        Long arity = (Long)((ScriptingContainer) runtime).callMethod(
+            incognito, "method_arity", new Object[] {target.getTargetObject(), identifier});
+        if (arity > 0)
+            return new MetaObject(Type.METHOD, target.getOriginRuntime(), target.getTargetObject(), identifier);
+        // zero-argument methods will be considered 'properties' - return value
+        else
+            return execMethod(target, identifier, new ArrayList());
+    }
+
+    @Override
+    public MetaObject execMember(MetaObject target, Object executionContext, List args) {
+        return execMethod(target, target.getIdentifier(), args);
+    }
+
+    @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
-        args.add(0,target.getTargetObject());
-        return wrap(((ScriptingContainer) runtime).callMethod(
-                incognito, "exec_proc", args));
+        if ( target.getType() == Type.EXECUTABLE ) {
+            args.add(0,target.getTargetObject());
+            return wrap(((ScriptingContainer) runtime).callMethod(
+                    incognito, "exec_proc", args.toArray()));
+        } else {
+            // Type.METHOD
+            return execMethod(target, target.getIdentifier(), args);
+        }
     }
 
     @Override

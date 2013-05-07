@@ -1,18 +1,28 @@
 
 importPackage(org.microsauce.incognito)
+importPackage(java.util)
+
+var incognitoPrepareArguments = function(args, originRuntime, destRuntime) {
+    var pArgs = new ArrayList();
+    for (var i = 0; i < args.length; i++) {
+        pArgs.add(originRuntime.proxy(destRuntime.wrap(args[i])));
+    }
+    return pArgs;
+}
+
 
 var rhinoIncognito = {
 
     executableProxy : function(metaObject, runtime) {
-        if ( metaObject.runtime.id.equals(Runtime.ID.RHINO) ) {
+        if ( metaObject.originRuntime.id.equals(Runtime.ID.RHINO) ) {
             return metaObject.targetObject;
         } else {
             var originRuntime = metaObject.originRuntime;
-            return function(args) {
+            return function() {
                 return originRuntime.exec(
                     metaObject,
                     originRuntime.scope,
-                    incognitoPrepareArguments(args, originRuntime, runtime));
+                    incognitoPrepareArguments(arguments, originRuntime, runtime));
             }
         }
     },
@@ -37,9 +47,4 @@ var rhinoIncognito = {
             date.getMilliseconds());
     },
 
-    prepareArguments : function(args, originRuntime, destRuntime) {
-        return args.map(function(arg) {
-            return originRuntime.proxy(destRuntime.wrap(arg));
-        });
-    }
 }

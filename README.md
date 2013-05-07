@@ -19,6 +19,11 @@ include primitives (strings/integers/floating point), objects, executable types 
 Leverage, as much as possible, existing support for Java interoperability (particularly with collections) in proxy
 implementations.
 
+Rethink method/property/attribute access.  Groovy has a property/method distinction, in JS all object variables are
+'properties', and in ruby attribute accessors are indistinguishable from other object methods.  This presents a challenge
+for defining a standard interface for object access/interaction.  I will attempt to define an all-as-attr or all-as-method
+interface.
+
 ### status and roadmap
 Incognito is currently pre-alpha software.  Proposed roadmap:
 * 0.1 - jruby, groovy, rhino, runtime adaptors and proxies

@@ -15,7 +15,7 @@ import static org.microsauce.incognito.Polly.*
         end
 
         def foobify(prefix, num)
-          return prefix + '- foo - ' + @name + '-ibity ' + num
+          return prefix + '- foo - ' + @name + '-ibity ' + num.to_s
         end
       end
 
@@ -26,10 +26,13 @@ import static org.microsauce.incognito.Polly.*
       println("kid.name: " + kid.name);
       println("kid.age: " + kid.age);
       println("kid.foobify: " + kid.foobify('hey', 8));
-      for ( prop in kid ) {
-        println(prop)
-        println("\t=> " + kid[prop])
-      }
+      var myfoobifier = kid.foobify
+
+      println(myfoobifier('yo', 9))
+//      for ( prop in kid ) {
+//        println(prop)
+//        println("\t=> " + kid[prop])
+//      }
   ''')
 
 //  class Kid {

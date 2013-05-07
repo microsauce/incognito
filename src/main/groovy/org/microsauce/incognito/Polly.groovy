@@ -6,6 +6,7 @@ import org.jruby.embed.ScriptingContainer
 import org.microsauce.incognito.groovy.GroovyRuntime
 import org.microsauce.incognito.jruby.JRubyRuntime
 import org.microsauce.incognito.rhino.RhinoRuntime
+import org.microsauce.incognito.rhino.ContextUtil
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.ImporterTopLevel
 
@@ -83,16 +84,18 @@ public class Polly {
     }
 
     static rhino(Map args, String scriptlet, ID rtId) {
-        Context ctx = Context.enter()
         def retValue = null
         def rhino = nativeRt(RHINO)
+
+        Context ctx = ContextUtil.enter()
         try {
             args.each { key, value ->
                 rhino.put(key, rhino, value)
             }
             retValue = ctx.evaluateString(rhino, scriptlet, "scriptlet_${jsNdx++}.js", 1, null)
         }
-        finally { ctx.exit() }
+        finally { System.out.println("rhino exit context");
+            ContextUtil.exit();}
         return proxy(rtId, retValue)
     }
 
@@ -120,7 +123,7 @@ public class Polly {
             Context ctx = null
             def scriptableObject = null
             try {
-                ctx = Context.enter()
+                ctx = ContextUtil.enter()
                 scriptableObject = new ImporterTopLevel(ctx)
                 scriptableObject.put('out', scriptableObject, System.out)
                 ctx.evaluateString(scriptableObject, '''
@@ -128,9 +131,9 @@ public class Polly {
                         out.println(str);
                     }
                 ''', "init.js", 1, null)
-            } finally {ctx.exit()}
-            return new RhinoRuntime(scriptableObject)
-        } else if (rtId == GROOVY) return new GroovyRuntime()
+            } finally {ContextUtil.exit();}
+            return registerRuntime(new RhinoRuntime(scriptableObject))
+        } else if (rtId == GROOVY) return registerRuntime(new GroovyRuntime())
     }
 
     static Incognito incognito() {

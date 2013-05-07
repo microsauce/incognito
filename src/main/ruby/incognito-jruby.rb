@@ -84,6 +84,10 @@ class JRubyIncognito
     set
   end
 
+  def method_arity(target, method)
+    target.class.instance_method(method.to_sym).arity
+  end
+
 end # class Incognito
 
 jruby_incognito = JRubyIncognito.new

@@ -2,6 +2,7 @@ package org.microsauce.incognito.rhino;
 
 import org.microsauce.incognito.*;
 import org.microsauce.incognito.Runtime;
+import org.microsauce.incognito.rhino.ContextUtil;
 import org.mozilla.javascript.*;
 import org.ringojs.wrappers.ScriptableMap;
 
@@ -28,8 +29,7 @@ public class RhinoRuntime extends Runtime {
     protected void doInitialize() {
         Context ctx = null;
         try {
-            ctx = Context.getCurrentContext();
-            if ( ctx == null ) ctx = Context.enter();
+            ctx = ContextUtil.enter();
             InputStreamReader reader = new InputStreamReader(
                     this.getClass().getClassLoader().getResourceAsStream("incognito-rhino.js"));
             try {
@@ -40,9 +40,8 @@ public class RhinoRuntime extends Runtime {
             executableProxy = (NativeFunction)incognito.get("executableProxy");
             convertDate = (NativeFunction)incognito.get("convertDate");
             dateProxy = (NativeFunction)incognito.get("dateProxy");
-
         } finally {
-            if (ctx != null) ctx.exit();
+            ContextUtil.exit();
         }
     }
 
@@ -79,6 +78,16 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
+    public MetaObject getMember(MetaObject target, String identifier) {
+        return getProp(target, identifier);
+    }
+
+    @Override
+    public MetaObject execMember(MetaObject target, Object executionContext, List args) {
+        return exec(target, executionContext, args);
+    }
+
+    @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
         return doExec((NativeFunction)target.getTargetObject(), (ScriptableObject) runtime, args);
     }
@@ -86,7 +95,7 @@ public class RhinoRuntime extends Runtime {
     private MetaObject doExec(NativeFunction func, ScriptableObject scope, List args) {
         org.mozilla.javascript.Context ctx = null;
         try {
-            ctx = org.mozilla.javascript.Context.getCurrentContext();
+            ctx = ContextUtil.enter();
             if ( ctx == null )
                 ctx = org.mozilla.javascript.Context.enter();
             Object retValue = func.call(
@@ -94,7 +103,7 @@ public class RhinoRuntime extends Runtime {
             return wrap(retValue);
         }
         finally {
-            if ( ctx != null ) ctx.exit();
+            ContextUtil.exit();
         }
     }
 
@@ -122,13 +131,13 @@ public class RhinoRuntime extends Runtime {
     public Object executableProxy(MetaObject obj) {
         Context ctx = null;
         try {
-            ctx = Context.getCurrentContext();
-            if ( ctx == null ) ctx = Context.enter();
+            ctx = ContextUtil.enter();
+
             return executableProxy.call(
-                    ctx, incognito, incognito, new Object[] {obj.getTargetObject(), this});
+                    ctx, incognito, incognito, new Object[] {obj, this});
         }
         finally {
-            ctx.exit();
+            ContextUtil.exit();
         }
     }
 
@@ -161,13 +170,13 @@ public class RhinoRuntime extends Runtime {
     public Object dateProxy(MetaObject obj) {
         Context ctx = null;
         try {
-            ctx = Context.getCurrentContext();
+            ctx = ContextUtil.enter();
             if ( ctx == null ) ctx = Context.enter();
             return dateProxy.call(
                     ctx, incognito, incognito, new Object[] {obj.getTargetObject()});
         }
         finally {
-            ctx.exit();
+            ContextUtil.exit();
         }
     }
 
@@ -175,13 +184,12 @@ public class RhinoRuntime extends Runtime {
     public Object dateConversion(Object date) {
         Context ctx = null;
         try {
-            ctx = Context.getCurrentContext();
-            if ( ctx == null ) ctx = Context.enter();
+            ctx = ContextUtil.enter();
             return convertDate.call(
                     ctx, incognito, incognito, new Object[] {date});
         }
         finally {
-            ctx.exit();
+            ContextUtil.exit();
         }
     }
 

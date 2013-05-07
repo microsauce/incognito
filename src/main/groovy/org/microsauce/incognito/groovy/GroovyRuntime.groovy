@@ -54,8 +54,24 @@ class GroovyRuntime extends Runtime {
     }
 
     @Override
+    MetaObject getMember(MetaObject target, String identifier) {
+        // if it's a property return the value
+        def metaProperty = target.targetObject.metaClass.properties.find {it.name == identifier}
+        if ( metaProperty ) return target.targetObject[identifier]
+        else return MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
+    }
+
+    @Override
+    MetaObject execMember(MetaObject target, Object executionContext, List args) {
+        execMethod(target, target.identifier, args)
+    }
+
+    @Override
     MetaObject exec(MetaObject target, Object executionContext, List args) {
-        target.targetObject.call(*args)
+        if (target.getType() == Type.EXECUTABLE)
+            return target.targetObject.call(*args)
+        else
+            return execMethod(target. target.getIdentifier(), args);
     }
 
     @Override
@@ -66,8 +82,10 @@ class GroovyRuntime extends Runtime {
         if ( obj instanceof Number ) return Type.PRIMITIVE
         if ( obj instanceof List) return Type.ARRAY
         if ( obj.class.isArray() ) return Type.ARRAY
+        if ( obj instanceof Closure) return Type.EXECUTABLE
         if ( obj instanceof Map) return Type.HASH
         if ( obj instanceof DateTime ) return Type.DATE
+
         return Type.OBJECT
     }
 
