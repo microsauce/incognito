@@ -14,7 +14,7 @@ public class IncognitoNativeJavaObject extends NativeJavaObject {
         this.thisRuntime = thisRuntime;
     }
 
-    public Object get(String name, Scriptable start) {
+    public Object get(String name, Scriptable start) { // TODO this needs to return an executable
 //System.out.println("IncognitoNativeJavaObject.get: " + name);
 //MetaObject mo = target.getOriginRuntime().getProp(target, name);
 //System.out.println("\tmo: " + mo);

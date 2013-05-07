@@ -14,12 +14,18 @@ import static org.microsauce.incognito.Polly.*
           @name = name; @age = age
         end
 
+        def foobify(prefix, num)
+          return prefix + '- foo - ' + @name + '-ibity ' + num
+        end
       end
 
       Kid.new(arg1,arg2)
   ''', RHINO)
 
   rhino([kid: kid_rhinoProxy], '''
+      println("kid.name: " + kid.name);
+      println("kid.age: " + kid.age);
+      println("kid.foobify: " + kid.foobify('hey', 8));
       for ( prop in kid ) {
         println(prop)
         println("\t=> " + kid[prop])

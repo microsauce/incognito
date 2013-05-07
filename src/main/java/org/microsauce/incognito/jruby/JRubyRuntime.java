@@ -48,6 +48,7 @@ public class JRubyRuntime extends Runtime {
 
     @Override
     public MetaObject execMethod(MetaObject target, String name, List args) {
+System.out.println("jrubyruntime: execMethod: " + name + " - " + args);
         return wrap(((ScriptingContainer) runtime).callMethod(
                 target.getTargetObject(), name, args.toArray()));
     }
