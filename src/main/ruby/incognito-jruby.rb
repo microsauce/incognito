@@ -43,7 +43,7 @@ class JRubyIncognito
   end
 
   def create_exec_proxy(meta_object, this_runtime)
-    if origin_runtime.lang == RUBY
+    if @meta_object.origin_runtime.id == Runtime::ID::JRUBY
       return meta_object.target
     else
       return Proc.new { |*args|
@@ -65,7 +65,7 @@ class JRubyIncognito
   end
 
   def convert_date(date)
-     return CommonDate.new(date.year, date.month, date.mday, date.hour, date.second, 0)
+     return CommonDate.new(date.year, date.month, date.mday, date.hour, date.min, date.second, 0)
   end
 
   def exec_proc(p, *args)
@@ -78,7 +78,8 @@ class JRubyIncognito
 
   def target_members(target)
     set = HashSet.new
-    target.methods.each { |it|
+    user_methods  = (target.methods - Object.methods) #.collect { |it| return it }
+    user_methods.each { |it|
       set.add(it.to_s.tr('^A-Za-z0-9_', ''))
     }
     set

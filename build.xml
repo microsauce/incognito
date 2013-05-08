@@ -10,7 +10,8 @@
 	</path>
 
 	<target name="init" depends="clean">
-		<mkdir dir="${basedir}/target/classes" />
+		<mkdir dir="${basedir}/target" />
+        <mkdir dir="${basedir}/target/classes" />
 	</target>
 
     <target name="jointCompile" depends="init"
@@ -58,7 +59,8 @@
 
 	<target name="clean" description="Deletes all build artifacts.">
 		<delete dir="${basedir}/target/classes" failonerror="false"/>
-		<delete file="${basedir}/lib/gravy.jar" failonerror="false"/>
+        <delete dir="${basedir}/target" failonerror="false" />
+        <delete file="${basedir}/lib/incognito.jar" failonerror="false"/>
 	</target>
 	
 </project>

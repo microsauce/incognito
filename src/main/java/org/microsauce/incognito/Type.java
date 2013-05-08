@@ -1,5 +1,10 @@
 package org.microsauce.incognito;
 
+
+/**
+ * The set of basic types recognized by Incognito.
+ *
+ */
 public enum Type {
 
     PRIMITIVE("primitive"), // string, integer, float, null/nil

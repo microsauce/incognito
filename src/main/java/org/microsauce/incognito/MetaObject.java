@@ -45,7 +45,7 @@ public class MetaObject<T> implements IncognitoProxy {
     }
 
     public String toString() {
-        return object.toString();
+        return object == null ? null : object.toString();
     }
 
     public String getIdentifier() {

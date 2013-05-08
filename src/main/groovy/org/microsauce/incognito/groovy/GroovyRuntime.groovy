@@ -32,7 +32,7 @@ class GroovyRuntime extends Runtime {
 
     @Override
     MetaObject execMethod(MetaObject target, String name, List args) {
-        wrap(target.targetObject."$name" *args)
+        wrap(target.targetObject."$name"(*args))
     }
 
     @Override
@@ -40,7 +40,7 @@ class GroovyRuntime extends Runtime {
         def trg = target.getTargetObject()
         def metaClass = target.getTargetObject().metaClass
         def hasProperties = metaClass.hasProperty(trg, methodName)
-        def respondsTo = metaClass.respondsTo(trg, metaClass)
+        def respondsTo = metaClass.respondsTo(trg, methodName)
         hasProperties || respondsTo
     }
 
@@ -48,8 +48,8 @@ class GroovyRuntime extends Runtime {
     Collection members(MetaObject target) {
         List members = []
         def metaClass = target.getTargetObject().metaClass
-        members.addAll(metaClass.methods.name)
-        members.addAll(metaClass.properties.name)
+        members.addAll((metaClass.methods*.name - Object.class.metaClass.methods*.name))
+        members.addAll(metaClass.properties*.name)
         members
     }
 
@@ -57,21 +57,16 @@ class GroovyRuntime extends Runtime {
     MetaObject getMember(MetaObject target, String identifier) {
         // if it's a property return the value
         def metaProperty = target.targetObject.metaClass.properties.find {it.name == identifier}
-        if ( metaProperty ) return target.targetObject[identifier]        // TODO broken
-        else return MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
-    }
-
-    @Override
-    MetaObject execMember(MetaObject target, Object executionContext, List args) {
-        execMethod(target, target.identifier, args)
+        if ( metaProperty ) return getProp(target, identifier)
+        else return new MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
     }
 
     @Override
     MetaObject exec(MetaObject target, Object executionContext, List args) {
         if (target.getType() == Type.EXECUTABLE)
-            return target.targetObject.call(*args)
+            return wrap(target.targetObject.call(*args))
         else
-            return execMethod(target. target.getIdentifier(), args);
+            return execMethod(target, target.identifier, args);
     }
 
     @Override
@@ -91,8 +86,8 @@ class GroovyRuntime extends Runtime {
 
     @Override
     @CompileStatic
-    Object dateConversion(Object date) {
-        if ( !date )  return date
+    CommonDate dateConversion(Object date) {
+        if ( !date ) return null
         DateTime dt = (DateTime) date
         new CommonDate(
                 dt.year,

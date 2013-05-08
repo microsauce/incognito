@@ -2,10 +2,8 @@ package org.microsauce.incognito.jruby;
 
 import org.jruby.*;
 import org.jruby.embed.ScriptingContainer;
-import org.microsauce.incognito.Lang;
-import org.microsauce.incognito.MetaObject;
+import org.microsauce.incognito.*;
 import org.microsauce.incognito.Runtime;
-import org.microsauce.incognito.Type;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -76,11 +74,6 @@ public class JRubyRuntime extends Runtime {
     }
 
     @Override
-    public MetaObject execMember(MetaObject target, Object executionContext, List args) {
-        return execMethod(target, target.getIdentifier(), args);
-    }
-
-    @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
         if ( target.getType() == Type.EXECUTABLE ) {
             args.add(0,target.getTargetObject());
@@ -111,8 +104,8 @@ public class JRubyRuntime extends Runtime {
     }
 
     @Override
-    public Object dateConversion(Object date) {
-        return ((ScriptingContainer)runtime).callMethod(incognito, "convert_date", new Object[] {date});
+    public CommonDate dateConversion(Object date) {
+        return (CommonDate)((ScriptingContainer)runtime).callMethod(incognito, "convert_date", new Object[] {date});
     }
 
     @Override

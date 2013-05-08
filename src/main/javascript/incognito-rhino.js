@@ -21,18 +21,18 @@ var rhinoIncognito = {
             return function() {
                 return originRuntime.exec(
                     metaObject,
-                    originRuntime.scope,
+                    originRuntime.runtime,
                     incognitoPrepareArguments(arguments, originRuntime, runtime));
             }
         }
     },
 
     dateProxy : function(metaObject) {
-        if ( metaObject.runtime.id.equals(Runtime.RT.RHINO) ) {
+        if ( metaObject.originRuntime.id.equals(Runtime.ID.RHINO) ) {
             return metaObject.targetRaw
         } else {
             var cd = metaObject.targetObject
-            return new Date(cd.year, cd.month, cd.dayOfMonth, cd.hour, cd.minute, cd.second, cd.millis);
+            return new Date(cd.year, cd.month-1, cd.dayOfMonth, cd.hour, cd.minute, cd.second, cd.millis);
         }
     },
 
@@ -41,7 +41,7 @@ var rhinoIncognito = {
             date.getYear(),
             date.getMonth()+1,
             date.getDate(),
-            date.getHours()+1,
+            date.getHours()+1,  // TODO ???
             date.getMinutes(),
             date.getSeconds(),
             date.getMilliseconds());

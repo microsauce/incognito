@@ -45,26 +45,94 @@ public abstract class Runtime {
         }
     }
 
+    /**
+     * This method is called to perform any necessary runtime initialization.
+     */
     protected abstract void doInitialize();
 
     //
     // object
     //
 
+    /**
+     * Retrieve a property from an object.
+     *
+     * Note: not all languages make a distinction between property accessors and other
+     * method types (ruby for example)
+     *
+     * @param target
+     * @param name
+     * @return
+     */
     public abstract MetaObject getProp(MetaObject target, String name);
+
+    /**
+     * Set the property of an object.
+     *
+     * @param target
+     * @param name
+     * @param value
+     */
     public abstract void setProp(MetaObject target, String name, MetaObject value);
+
+    /**
+     * Execute an object method.
+     *
+     * @param target
+     * @param name
+     * @param args
+     * @return
+     */
     public abstract MetaObject execMethod(MetaObject target, String name, List args);
+
+    /**
+     * Does the target object respond to the given method name.
+     *
+     * @param target
+     * @param methodName
+     * @return
+     */
     public abstract boolean respondTo(MetaObject target, String methodName);
+
+    /**
+     * Collect the names of all class members.
+     *
+     * @param target
+     * @return
+     */
     public abstract Collection members(MetaObject target); // member names
-    public abstract MetaObject getMember(MetaObject target, String identifier);     // for the benefit of JS
-    public abstract MetaObject execMember(MetaObject target, Object executionContext, List args);    // for the benefit of JS
+
+    /**
+     * Retrieve an object member by id/name.
+     *
+     * Note: for the benefit of JS
+     *
+     * @param target
+     * @param identifier
+     * @return
+     */
+    public abstract MetaObject getMember(MetaObject target, String identifier);
 
     //
     // executable
     //
 
+    /**
+     * Execute the closure/function/lambda encapsulated by target.
+     *
+     * @param target
+     * @param executionContext
+     * @param args
+     * @return
+     */
     public abstract MetaObject exec(MetaObject target, Object executionContext, List args);
 
+    /**
+     * Determine the Type of the given object.
+     *
+     * @param obj
+     * @return
+     */
     public abstract Type typeof(Object obj);
 
     public MetaObject wrap(Object obj) {
@@ -97,8 +165,31 @@ public abstract class Runtime {
             return new MetaObject(Type.OBJECT, this, obj);
         }
     }
-    public abstract Object dateConversion(Object date);
+
+    /**
+     * Convert rt specific date to a CommonDate
+     *
+     * @param date
+     * @return
+     */
+    public abstract CommonDate dateConversion(Object date);
+
+    /**
+     * Create a proxy object instance for the givent MetaObject
+     *
+     * @param obj
+     * @return
+     */
     public abstract Object objectProxy(MetaObject obj);
+
+    /**
+     * Create an executable proxy for the given MetaObject
+     *
+     * Note: executable types are closures/lambdas/callbacks etc.
+     *
+     * @param obj
+     * @return
+     */
     public abstract Object executableProxy(MetaObject obj);
     public Object arrayProxy(MetaObject obj) {
         List array = (List) newProxyInstance(
@@ -156,6 +247,12 @@ public abstract class Runtime {
         return id;
     }
 
+    /**
+     * Does this runtime own the given obj.
+     *
+     * @param obj
+     * @return
+     */
     public abstract boolean ownsObject(Object obj);
 
 }

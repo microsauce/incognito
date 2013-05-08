@@ -83,11 +83,6 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
-    public MetaObject execMember(MetaObject target, Object executionContext, List args) {
-        return exec(target, executionContext, args);
-    }
-
-    @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
         return doExec((NativeFunction)target.getTargetObject(), (ScriptableObject) runtime, args);
     }
@@ -173,7 +168,7 @@ public class RhinoRuntime extends Runtime {
             ctx = ContextUtil.enter();
             if ( ctx == null ) ctx = Context.enter();
             return dateProxy.call(
-                    ctx, incognito, incognito, new Object[] {obj.getTargetObject()});
+                    ctx, incognito, incognito, new Object[] {obj});
         }
         finally {
             ContextUtil.exit();
@@ -181,11 +176,11 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
-    public Object dateConversion(Object date) {
+    public CommonDate dateConversion(Object date) {
         Context ctx = null;
         try {
             ctx = ContextUtil.enter();
-            return convertDate.call(
+            return (CommonDate)convertDate.call(
                     ctx, incognito, incognito, new Object[] {date});
         }
         finally {
