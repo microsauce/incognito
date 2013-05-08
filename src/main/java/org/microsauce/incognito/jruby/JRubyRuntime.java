@@ -68,11 +68,11 @@ public class JRubyRuntime extends Runtime {
     public MetaObject getMember(MetaObject target, String identifier) {
         Long arity = (Long)((ScriptingContainer) runtime).callMethod(
             incognito, "method_arity", new Object[] {target.getTargetObject(), identifier});
-        if (arity > 0)
-            return new MetaObject(Type.METHOD, target.getOriginRuntime(), target.getTargetObject(), identifier);
         // zero-argument methods will be considered 'properties' - return value
-        else
+        if (arity == 0 )
             return execMethod(target, identifier, new ArrayList());
+        else
+            return new MetaObject(Type.METHOD, target.getOriginRuntime(), target.getTargetObject(), identifier);
     }
 
     @Override

@@ -11,9 +11,10 @@ import org.mozilla.javascript.Context
 import org.mozilla.javascript.ImporterTopLevel
 
 import static org.microsauce.incognito.Runtime.ID
-import static org.microsauce.incognito.Runtime.ID.*
 
 /**
+ * TODO run groovy scriptlets as separate scripts
+ *
  * Polly is a utility class for writing polyglot test scripts.
  *
  * Usage:
@@ -43,6 +44,10 @@ import static org.microsauce.incognito.Runtime.ID.*
  */
 public class Polly {
 
+    static Runtime.ID JRUBY = Runtime.ID.JRUBY
+    static Runtime.ID GROOVY = Runtime.ID.GROOVY
+    static Runtime.ID RHINO = Runtime.ID.RHINO
+
     static Map<Runtime.ID,Runtime> runtimes = [:]
 
     static Incognito incognito
@@ -58,10 +63,9 @@ public class Polly {
         groovy(args, scriptlet, null)
     }
 
-    static groovy(Map args, Closure scriptlet, ID rtId) {
-        scriptlet.delegate = args as Binding
-        scriptlet.resolveStrategy = Closure.DELEGATE_FIRST
-        def retValue = scriptlet.call()
+    static groovy(Map args, String scriptlet, ID rtId) {
+        def shell = new GroovyShell(args as Binding)
+        def retValue = shell.evaluate(scriptlet)
         proxy(rtId, retValue)
     }
 
@@ -94,8 +98,7 @@ public class Polly {
             }
             retValue = ctx.evaluateString(rhino, scriptlet, "scriptlet_${jsNdx++}.js", 1, null)
         }
-        finally { System.out.println("rhino exit context");
-            ContextUtil.exit();}
+        finally { ContextUtil.exit();}
         return proxy(rtId, retValue)
     }
 

@@ -57,7 +57,7 @@ class GroovyRuntime extends Runtime {
     MetaObject getMember(MetaObject target, String identifier) {
         // if it's a property return the value
         def metaProperty = target.targetObject.metaClass.properties.find {it.name == identifier}
-        if ( metaProperty ) return target.targetObject[identifier]
+        if ( metaProperty ) return target.targetObject[identifier]        // TODO broken
         else return MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
     }
 
