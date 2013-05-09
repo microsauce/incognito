@@ -118,6 +118,11 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
+    public Object undefined() {
+        return Undefined.instance;
+    }
+
+    @Override
     public Object objectProxy(MetaObject obj) {
         return new IncognitoNativeJavaObject(obj, this);
     }

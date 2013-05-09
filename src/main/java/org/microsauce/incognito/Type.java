@@ -9,7 +9,8 @@ public enum Type {
 
     PRIMITIVE("primitive"), // string, integer, float, null/nil
     EXECUTABLE("executable"), OBJECT("object"), METHOD("method"),
-    ARRAY("array"), HASH("hash"), SET("set"), DATE("date");
+    ARRAY("array"), HASH("hash"), SET("set"), DATE("date"),
+    UNDEFINED("undefined");
 
     String name;
 

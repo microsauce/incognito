@@ -1,7 +1,6 @@
 
 import static org.microsauce.incognito.Polly.*
 
-
 def kid_proxies = jruby([arg1: 'Hello', arg2: 7], '''
   require 'date'
 
@@ -30,12 +29,14 @@ def groovy_kid = groovy('''
     def age
     def dob
     def callback
+    def set
 
-    Kid(name,age,dob,callback) {
-        this.name = name
-        this.age = age
-        this.dob = dob
-        this.callback = callback
+    Kid(name,age,dob,callback, set) {
+      this.name = name
+      this.age = age
+      this.dob = dob
+      this.callback = callback
+      this.set = set
     }
 
     def foobify(prefix, num) {
@@ -46,7 +47,7 @@ def groovy_kid = groovy('''
     println "hey $name I'm a groovy callback"
     return 'groovy'
   }
-  new Kid('Steve',9, new DateTime(), callback)
+  new Kid('Steve',9, new DateTime(), callback, [1,2,3,4] as Set)
 ''', RHINO)
 println "kid_proxies: $kid_proxies - groovy_kid: $groovy_kid"
 [kid_proxies[RHINO], groovy_kid].each { kid ->
@@ -55,7 +56,12 @@ println "kid_proxies: $kid_proxies - groovy_kid: $groovy_kid"
       println("kid.age: " + kid.age);
       println("kid.dob: " + kid.dob);
       println("kid.foobify: " + kid.foobify('hey', 8));
-      println("kid.callback: " + kid.callback('Steve'))
+      println("kid.callback: " + kid.callback('Steve'));
+      println("items:");
+      if (kid.set===undefined) {}
+      else {
+        kid.set.map(function(item) {println("\t"+item);})
+      }
       var myfoobifier = kid.foobify
 
       println(myfoobifier('yo', 9))

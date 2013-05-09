@@ -135,6 +135,8 @@ public abstract class Runtime {
      */
     public abstract Type typeof(Object obj);
 
+    public abstract Object undefined();
+
     public MetaObject wrap(Object obj) {
         if ( obj instanceof MetaObject ) return (MetaObject)obj;
         else if ( obj instanceof Proxy ) return ((Proxy)obj).getTarget();
@@ -238,6 +240,8 @@ public abstract class Runtime {
             return executableProxy(obj);
         } else if (Type.DATE.equals(type)) {
             return dateProxy(obj);
+        } else if (Type.UNDEFINED.equals(type)) {
+            return undefined();
         } else {
             return objectProxy(obj);
         }

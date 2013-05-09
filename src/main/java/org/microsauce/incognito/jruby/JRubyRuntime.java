@@ -62,12 +62,14 @@ public class JRubyRuntime extends Runtime {
                 incognito, "target_members", new Object[] {target.getTargetObject()});
     }
 
+    // TODO does the member exist ???
     @Override
     public MetaObject getMember(MetaObject target, String identifier) {
+        if( !respondTo(target, identifier) ) return new MetaObject(Type.UNDEFINED, target.getOriginRuntime(), undefined());
         Long arity = (Long)((ScriptingContainer) runtime).callMethod(
             incognito, "method_arity", new Object[] {target.getTargetObject(), identifier});
         // zero-argument methods will be considered 'properties' - return value
-        if (arity == 0 )
+        if ( arity == 0 )
             return execMethod(target, identifier, new ArrayList());
         else
             return new MetaObject(Type.METHOD, target.getOriginRuntime(), target.getTargetObject(), identifier);
@@ -100,6 +102,11 @@ public class JRubyRuntime extends Runtime {
             else if ( rubyClassName.equals("DateTime") ) return Type.DATE;
             else return Type.OBJECT;
         }
+        return null;
+    }
+
+    @Override
+    public Object undefined() {
         return null;
     }
 

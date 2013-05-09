@@ -58,7 +58,9 @@ class GroovyRuntime extends Runtime {
         // if it's a property return the value
         def metaProperty = target.targetObject.metaClass.properties.find {it.name == identifier}
         if ( metaProperty ) return getProp(target, identifier)
-        else return new MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
+        def metaMethod = target.targetObject.metaClass.methods.find {it.name == identifier}
+        if (metaMethod) return new MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
+        else return new MetaObject(Type.UNDEFINED, target.originRuntime, undefined()) // TODO null would suffice
     }
 
     @Override
@@ -82,6 +84,11 @@ class GroovyRuntime extends Runtime {
         if ( obj instanceof DateTime ) return Type.DATE
 
         return Type.OBJECT
+    }
+
+    @Override
+    Object undefined() {
+        return null
     }
 
     @Override
