@@ -1,14 +1,14 @@
 
 import static org.microsauce.incognito.Polly.*
-
+println "ruby setup"
 def kid_proxies = jruby([arg1: 'Hello', arg2: 7], '''
   require 'date'
-
+  puts "jruby arg1: #{arg1} - arg2: #{arg2}"
   class Kid
     attr_accessor :name, :age, :dob, :callback
 
     def initialize(name, age, dob, &callback)
-      @name = name; @age = age, @dob = dob, @callback = callback
+      @name = name; @age = age; @dob = dob; @callback = callback
     end
 
     def foobify(prefix, num)
@@ -21,6 +21,7 @@ def kid_proxies = jruby([arg1: 'Hello', arg2: 7], '''
     'ruby'
   end
 ''', RHINO, GROOVY)
+println "groovy setup"
 
 def groovy_kid = groovy('''
   import org.joda.time.DateTime
@@ -48,9 +49,13 @@ def groovy_kid = groovy('''
     return 'groovy'
   }
   new Kid('Steve',9, new DateTime(), callback, [1,2,3,4] as Set)
-''', RHINO)
-println "kid_proxies: $kid_proxies - groovy_kid: $groovy_kid"
-[kid_proxies[RHINO], groovy_kid].each { kid ->
+''', RHINO,GROOVY)
+println "rhino playground"
+[kid_proxies[RHINO], groovy_kid[RHINO]].each { kid ->
+//[groovy_kid].each { kid ->
+    println "\tkid $kid hitting the rhino playground"
+
+    // TODO why is jruby  kid.age a list proxy
     rhino([kid: kid], '''
       println("kid.name: " + kid.name);
       println("kid.age: " + kid.age);
@@ -61,6 +66,8 @@ println "kid_proxies: $kid_proxies - groovy_kid: $groovy_kid"
       if (kid.set===undefined) {}
       else {
         kid.set.map(function(item) {println("\t"+item);})
+        println("kid.set[0]: "+kid.set[0]);
+        kid.set.push(100);
       }
       var myfoobifier = kid.foobify
 
@@ -74,15 +81,6 @@ println "kid_proxies: $kid_proxies - groovy_kid: $groovy_kid"
       }
     ''')
 }
-//  class Kid {
-//      def name
-//      def age
-//  }
-//
-//
-//
-//  rhino([kid: new ScriptableMap(nativeRt(RHINO), [name: 'Steve', age: 7])], '''
-//      for ( prop in kid ) {
-//        println(prop + " => " + kid[prop])
-//      }
-//  ''')
+println "groovy_kid post rhino: ${groovy_kid[GROOVY].set}"
+println "groovy_kid.toSTring: ${groovy_kid[GROOVY].toString()}"
+

@@ -82,6 +82,7 @@ class GroovyRuntime extends Runtime {
         if ( obj instanceof Closure) return Type.EXECUTABLE
         if ( obj instanceof Map) return Type.HASH
         if ( obj instanceof DateTime ) return Type.DATE
+        if ( obj instanceof Set ) return Type.SET
 
         return Type.OBJECT
     }

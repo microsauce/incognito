@@ -76,7 +76,7 @@ public abstract class Runtime {
     public abstract void setProp(MetaObject target, String name, MetaObject value);
 
     /**
-     * Execute an object method.
+     * Execute a method.
      *
      * @param target
      * @param name

@@ -62,7 +62,6 @@ public class JRubyRuntime extends Runtime {
                 incognito, "target_members", new Object[] {target.getTargetObject()});
     }
 
-    // TODO does the member exist ???
     @Override
     public MetaObject getMember(MetaObject target, String identifier) {
         if( !respondTo(target, identifier) ) return new MetaObject(Type.UNDEFINED, target.getOriginRuntime(), undefined());

@@ -7,16 +7,21 @@ public class MetaObject<T> implements IncognitoProxy {
     protected T object;
     private Runtime originRuntime;
     private String identifier;
+    private MetaObject value;
 
     public MetaObject(Type type, Runtime origin, T object) {
         this(type, origin, object, null);
     }
 
     public MetaObject(Type type, Runtime origin, T object, String identifier) {
+        this(type, origin, object, identifier, null);
+    }
+    public MetaObject(Type type, Runtime origin, T object, String identifier, MetaObject value) {
         this.object = object;
         this.type = type;
         this.originRuntime = origin;
         this.identifier = identifier;
+        this.value = value;
     }
 
     public Type getType() {
@@ -54,6 +59,10 @@ public class MetaObject<T> implements IncognitoProxy {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public MetaObject getValue() {
+        return value;
     }
 
     public Object conversion() {return object;}
