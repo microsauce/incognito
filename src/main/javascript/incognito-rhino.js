@@ -47,4 +47,7 @@ var rhinoIncognito = {
             date.getMilliseconds());
     },
 
+    targetToString : function(target) {
+        return target.toString();
+    }
 }

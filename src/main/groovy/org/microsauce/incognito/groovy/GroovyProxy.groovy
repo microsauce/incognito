@@ -4,11 +4,12 @@ import groovy.transform.CompileStatic
 import org.codehaus.groovy.reflection.CachedClass
 import org.microsauce.incognito.MetaObject
 import org.microsauce.incognito.Type
+import org.microsauce.incognito.Runtime
 
 // TODO
 //  override respondsTo
 //  override hasProperty
-class GroovyProxy implements GroovyInterceptable {
+class GroovyProxy { //implements GroovyInterceptable {
 
     MetaObject obj
     org.microsauce.incognito.Runtime thisRuntime
@@ -16,7 +17,7 @@ class GroovyProxy implements GroovyInterceptable {
     @CompileStatic
     GroovyProxy(MetaObject obj, org.microsauce.incognito.Runtime rt) {this.obj = obj; thisRuntime = rt}
 
-    def invokeMethod(String name, args) {
+    def methodMissing(String name, args) { // TODO this causes stack overflow when method does not exist
         org.microsauce.incognito.Runtime oRuntime = obj.getOriginRuntime()
         if ( oRuntime.id.equals(org.microsauce.incognito.Runtime.ID.GROOVY ) )
             return obj.getTargetObject()."$name"(*args)
@@ -45,13 +46,15 @@ class GroovyProxy implements GroovyInterceptable {
     }
 
     @Override
+    @CompileStatic
     List respondsTo(String identifier) {
         def respondsTo = []
         def targetMember = obj.originRuntime.getMember(obj,identifier)
-        if ( targetMember == null || targetMember.equals(obj.originRuntime.undefined()) )
+        if ( targetMember == null || targetMember.type == Type.UNDEFINED )
             return respondsTo
         else {
-            respondsTo << new ProxyMetaMethod(new MetaObject(Type.METHOD, obj.originRuntime, obj.targetObject, identifier))
+            def metaObjectMethod = new MetaObject(Type.METHOD, obj.originRuntime, obj.targetObject, identifier)
+            respondsTo << new ProxyMetaMethod(metaObjectMethod, thisRuntime)
             return respondsTo
         }
     }
@@ -74,9 +77,10 @@ class GroovyProxy implements GroovyInterceptable {
 
         MetaObject target
         Runtime thisRuntime
+        String _name
 
         ProxyMetaMethod(MetaObject target, Runtime thiz) {
-            this.name = target.identifier
+            this._name = target.identifier
             this.target = target
             this.thisRuntime = thiz
         }
@@ -85,7 +89,9 @@ class GroovyProxy implements GroovyInterceptable {
         int getModifiers() { return 0 }
 
         @Override
-        String getName() { return name }
+        String getName() { return _name }
+
+        String setName(String name) {_name = name}
 
         @Override
         Class getReturnType() { return Object.class }
@@ -99,6 +105,10 @@ class GroovyProxy implements GroovyInterceptable {
                     target.originRuntime.execMethod(target, target.identifier, objects as List))
         }
 
+        @Override
+        String toString() {
+            return _name
+        }
     }
 
     private class ProxyMetaProperty extends MetaProperty {

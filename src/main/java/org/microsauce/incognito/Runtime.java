@@ -113,6 +113,8 @@ public abstract class Runtime {
      */
     public abstract MetaObject getMember(MetaObject target, String identifier);
 
+    public abstract String targetToString(MetaObject target);
+
     //
     // executable
     //
@@ -163,6 +165,8 @@ public abstract class Runtime {
                     return dateConversion(object);
                 }
             };
+        } else if ( Type.UNDEFINED.equals(type) ) {
+            return new MetaObject(Type.UNDEFINED, this, obj);
         } else {
             return new MetaObject(Type.OBJECT, this, obj);
         }
@@ -215,14 +219,6 @@ public abstract class Runtime {
     public abstract Object dateProxy(MetaObject obj);
 
     public Object proxy(MetaObject obj) { // TODO
-//System.out.println("proxy: " + obj);
-//System.out.println("proxy.target: " + obj.getTargetObject());
-//if ( obj.getTargetObject() != null )
-//    System.out.println("proxy.target.class: " + obj.getTargetObject().getClass());
-//System.out.println("proxy.type: " + obj.getType().name());
-//if ( obj.getTargetObject() instanceof RubyEnumerator )
-//    new Exception().printStackTrace();
-
         if ( obj == null ) return obj;
 
         Type type = obj.getType();

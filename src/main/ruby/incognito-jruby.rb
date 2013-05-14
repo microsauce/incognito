@@ -4,6 +4,7 @@ require 'date'
 
 java_import org.microsauce.incognito.CommonDate
 java_import org.microsauce.incognito.Runtime
+java_import org.microsauce.incognito.Type
 java_import java.util.HashSet
 
 class JRubyIncognito
@@ -16,18 +17,27 @@ class JRubyIncognito
     end
 
     # TODO review this.  Might want to be more selective on what we un-define
-    instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^object_id$|^kind_of\?$)/ }
+    instance_methods.each { |m| undef_method m unless m =~ /(^__|^send$|^to_s$|^object_id$|^kind_of\?$|^respond_to\?$)/ }
 
     def respond_to?(method, include_private = false)
-      @meta_object.target_object.respond_to?(method, include_private)
+      if @meta_object.origin_runtime.id == Runtime::ID::JRUBY
+        return @meta_object.target_object.respond_to?(method, include_private)
+      else
+        return @meta_object.origin_runtime.respond_to(@meta_object, method)
+      end
     end
 
     protected
-      def method_missing(name, *args, &block)
+      def method_missing(name, *args, &block) # TODO handle 'properties' -- use runtime.get_member instead
         if @meta_object.origin_runtime.id == Runtime::ID::JRUBY
           return @meta_object.target.send name, *args
         else
-          return @this_runtime.proxy(@meta_object.origin_runtime.exec_method(@meta_object, name, prepare_arguments(args)))
+          member = @meta_object.origin_runtime.get_member(@meta_object, name) #, prepare_arguments(args))
+          if not member.type.equals(Type::METHOD)
+            return @this_runtime.proxy(member)
+          else
+            return @this_runtime.proxy(member.origin_runtime.exec(member, nil, prepare_arguments(args)))
+          end
         end
       end
 
@@ -87,6 +97,10 @@ class JRubyIncognito
 
   def method_arity(target, method)
     target.class.instance_method(method.to_sym).arity
+  end
+
+  def target_to_s(target)
+    target.to_s
   end
 
 end # class Incognito

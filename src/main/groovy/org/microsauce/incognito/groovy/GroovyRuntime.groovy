@@ -58,17 +58,26 @@ class GroovyRuntime extends Runtime {
         // if it's a property return the value
         def metaProperty = target.targetObject.metaClass.properties.find {it.name == identifier}
         if ( metaProperty ) return getProp(target, identifier)
-        def metaMethod = target.targetObject.metaClass.methods.find {it.name == identifier}
-        if (metaMethod) return new MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
-        else return new MetaObject(Type.UNDEFINED, target.originRuntime, undefined()) // TODO null would suffice
+        def metaMethod = target.targetObject.metaClass.methods.find {it.name == identifier}  // TODO this is groovy - there may be multiple siggies
+        if ( metaMethod ) return new MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
+        else return new MetaObject(Type.UNDEFINED, target.originRuntime, undefined())
+    }
+
+    @Override
+    String targetToString(MetaObject target) {
+        target.toString()
     }
 
     @Override
     MetaObject exec(MetaObject target, Object executionContext, List args) {
-        if (target.getType() == Type.EXECUTABLE)
+        if (target.getType() == Type.EXECUTABLE) {
             return wrap(target.targetObject.call(*args))
-        else
-            return execMethod(target, target.identifier, args);
+        }
+        else if (target.getType() == Type.METHOD) {
+            def retValue = execMethod(target, target.identifier, args)
+            return retValue
+        }
+        else throw new RuntimeException("attempting to execute non-executable type: ${target.type}")
     }
 
     @Override

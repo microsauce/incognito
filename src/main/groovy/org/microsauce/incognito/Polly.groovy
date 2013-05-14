@@ -60,7 +60,8 @@ public class Polly {
     }
 
     static groovy(Map args, String scriptlet, List<ID> rtIds) {
-        def shell = new GroovyShell(args ?: [:] as Binding)
+        def binding = new Binding(args ?: [:])
+        def shell = new GroovyShell(binding)
         def retValue = shell.evaluate(scriptlet)
         proxies(retValue, rtIds)
     }
@@ -161,6 +162,7 @@ public class Polly {
     }
 
     private static proxies(Object retValue, List<ID>rtIds) {
+
         def proxies = [:]
         rtIds.each { rtId ->
             proxies[rtId] = proxy(rtId, retValue)
@@ -173,7 +175,7 @@ public class Polly {
     private static List standardizeArgs(...args) {
         def standardizedArgs = []
         switch (args.length) {
-            case 0: throw new RuntimeException('illegal arguments: a scriptlet must be provided')
+            case 0: throw new RuntimeException('illegal arguments: a scriptlet must be provided: ([params,] scriptlet[, proxy1, proxy2, .. proxyN])')
             case 1:
                 if (!(args[0] instanceof String)) throw new RuntimeException('illegal arguments: a scriptlet must be provided')
                 standardizedArgs.addAll([null, args[0],[]])

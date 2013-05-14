@@ -18,6 +18,7 @@ public class RhinoRuntime extends Runtime {
     private NativeFunction executableProxy;
     private NativeFunction convertDate;
     private NativeFunction dateProxy;
+    private NativeFunction targetToString;
 
     public RhinoRuntime(Object runtime) {
         super(runtime);
@@ -40,6 +41,7 @@ public class RhinoRuntime extends Runtime {
             executableProxy = (NativeFunction)incognito.get("executableProxy");
             convertDate = (NativeFunction)incognito.get("convertDate");
             dateProxy = (NativeFunction)incognito.get("dateProxy");
+            targetToString = (NativeFunction)incognito.get("targetToString");
         } finally {
             ContextUtil.exit();
         }
@@ -83,6 +85,21 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
+    public String targetToString(MetaObject target) {
+        Context ctx = null;
+        try {
+            ctx = ContextUtil.enter();
+            if ( ctx == null ) ctx = Context.enter();
+
+            return (String)targetToString.call(
+                    ctx, incognito, incognito, new Object[] {target.getTargetObject()});
+        }
+        finally {
+            ContextUtil.exit();
+        }
+    }
+
+    @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
         return doExec((NativeFunction)target.getTargetObject(), (ScriptableObject) runtime, args);
     }
@@ -111,6 +128,7 @@ public class RhinoRuntime extends Runtime {
         if ( obj instanceof Number ) return Type.PRIMITIVE;
         if ( obj instanceof NativeObject) return Type.OBJECT;
         if ( obj instanceof NativeArray) return Type.ARRAY;
+        if ( obj instanceof Undefined ) return Type.UNDEFINED;
         // NativeDate is not public
         if ( obj.getClass().getName().equals("org.mozilla.javascript.NativeDate") )
             return Type.DATE;

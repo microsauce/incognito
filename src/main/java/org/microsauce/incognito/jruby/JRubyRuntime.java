@@ -75,6 +75,12 @@ public class JRubyRuntime extends Runtime {
     }
 
     @Override
+    public String targetToString(MetaObject target) {
+        return (String)((ScriptingContainer) runtime).callMethod(
+                incognito, "target_to_s", new Object[] {target.getTargetObject()});
+    }
+
+    @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
         if ( target.getType() == Type.EXECUTABLE ) {
             args.add(0,target.getTargetObject());

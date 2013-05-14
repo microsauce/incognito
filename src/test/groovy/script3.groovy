@@ -12,7 +12,7 @@ def kid_proxies = jruby([arg1: 'Hello', arg2: 7], '''
     end
 
     def foobify(prefix, num)
-      return prefix + '- foo - ' + @name + '-ibity ' + num.to_s
+      return prefix + '- foo - ' + @name + '-ibity ' + num.to_s + ' rubityyyyyyyyyyyyyyy'
     end
   end
 
@@ -21,6 +21,8 @@ def kid_proxies = jruby([arg1: 'Hello', arg2: 7], '''
     'ruby'
   end
 ''', RHINO, GROOVY)
+println "kid_proxies: ${kid_proxies}"
+
 println "groovy setup"
 
 def groovy_kid = groovy('''
@@ -30,18 +32,18 @@ def groovy_kid = groovy('''
     def age
     def dob
     def callback
-    def set
+    def sett
 
     Kid(name,age,dob,callback, set) {
       this.name = name
       this.age = age
       this.dob = dob
       this.callback = callback
-      this.set = set
+      this.sett = set
     }
 
     def foobify(prefix, num) {
-      return prefix + '- foo - ' + name + '-ibity ' + num
+      return prefix + '- foo - ' + name + '-ibity ' + num + ' groovityyyyyyyyyyyyyyyyyyyyy'
     }
   }
   def callback = { name ->
@@ -49,7 +51,9 @@ def groovy_kid = groovy('''
     return 'groovy'
   }
   new Kid('Steve',9, new DateTime(), callback, [1,2,3,4] as Set)
-''', RHINO,GROOVY)
+''', RHINO,GROOVY,JRUBY)
+println "groovy_kid: ${groovy_kid}"
+
 println "rhino playground"
 [kid_proxies[RHINO], groovy_kid[RHINO]].each { kid ->
 //[groovy_kid].each { kid ->
@@ -63,11 +67,11 @@ println "rhino playground"
       println("kid.foobify: " + kid.foobify('hey', 8));
       println("kid.callback: " + kid.callback('Steve'));
       println("items:");
-      if (kid.set===undefined) {}
+      if (kid.sett===undefined) {}
       else {
-        kid.set.map(function(item) {println("\t"+item);})
-        println("kid.set[0]: "+kid.set[0]);
-        kid.set.push(100);
+        kid.sett.map(function(item) {println("\t"+item);})
+        println("kid.sett[0]: "+kid.sett[0]);
+        kid.sett.push(100);
       }
       var myfoobifier = kid.foobify
 
@@ -81,6 +85,35 @@ println "rhino playground"
       }
     ''')
 }
-println "groovy_kid post rhino: ${groovy_kid[GROOVY].set}"
+println "groovy_kid post rhino: ${groovy_kid[GROOVY].sett}"
 println "groovy_kid.toSTring: ${groovy_kid[GROOVY].toString()}"
+
+println "groovy playground"
+
+groovy([kid:kid_proxies[GROOVY]], '''
+    println "in groovy . . . "
+//    println "kid.resondsTo: ${kid.respondsTo('foobify')}"
+    kid.respondsTo('foobify').each {
+        print "${it}: "
+        println "${it.invoke(kid, 'pre', 8)}"
+        println "${kid."$it"('preee',9)}"
+    }
+''')
+
+println "\nruby playground: ${groovy_kid[JRUBY]}"
+jruby([kid: groovy_kid[JRUBY]], '''
+    # puts "kid: #{kid.getClass()} . . ."
+    puts "kid.respond_to?('foobify') => #{kid.respond_to?('foobify')}"
+    puts "kid.respond_to?('barbify') ??? "
+    puts "kid.respond_to?('barbify') => #{kid.respond_to?('barbify')}"
+    puts "kid.foobify() => #{kid.foobify('proovity', 10)}"
+
+    puts "dump the sett:"
+    puts "set: #{kid.sett}"
+    puts "set: #{kid.sett.class}"
+    kid.sett.each { |i|
+      puts "\t#{i}"
+    }
+    kid.sett <<
+''')
 
