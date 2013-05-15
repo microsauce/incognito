@@ -59,7 +59,9 @@ class GroovyRuntime extends Runtime {
         def metaProperty = target.targetObject.metaClass.properties.find {it.name == identifier}
         if ( metaProperty ) return getProp(target, identifier)
         def metaMethod = target.targetObject.metaClass.methods.find {it.name == identifier}  // TODO this is groovy - there may be multiple siggies
-        if ( metaMethod ) return new MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
+        if ( metaMethod ) {
+            return new MetaObject(Type.METHOD, target.originRuntime, target.targetObject, identifier)
+        }
         else return new MetaObject(Type.UNDEFINED, target.originRuntime, undefined())
     }
 

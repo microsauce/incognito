@@ -13,7 +13,7 @@ import org.mozilla.javascript.ImporterTopLevel
 import static org.microsauce.incognito.Runtime.ID
 
 /**
- * Polly is a utility class for writing polyglot scripts.             *
+ * Polly is a utility class for writing polyglot scripts.
  *
  * Usage:
  *
@@ -26,7 +26,6 @@ import static org.microsauce.incognito.Runtime.ID
  *        def initialize(name, age)
  *          @name = name; @age = age
  *        end
- *
  *      end
  *
  *      Kid.new(arg1,arg2)
@@ -39,6 +38,7 @@ import static org.microsauce.incognito.Runtime.ID
  *  ''')
  */
 public class Polly {
+
     /**
      * The JRuby runtime ID
      */
@@ -71,7 +71,8 @@ public class Polly {
     }
 
     /**
-     * Execute a Groovy scriptlet, return the resulting value
+     * Execute a Groovy scriptlet, return the resulting value.  If there is no GroovyRuntime registered with Polly then
+     * a default GroovyRuntime is registered.
      *
      * @param args an argument array of the form ([argumentMap,] scriptlet[, Runtime.ID_1..Runtime.ID_N]).  scriptlet is the only
      * required parameter. argumentMap - a map of identifiers/values to bind to the scriptlet runtime, runtime.ids - specify each proxy
@@ -85,7 +86,8 @@ public class Polly {
     }
 
     /**
-     * Execute a Groovy scriptlet, return the resulting value
+     * Execute a Groovy scriptlet, return the resulting value.  If there is no GroovyRuntime registered with Polly then
+     * a default GroovyRuntime is registered.
      *
      * @param args
      * @param scriptlet
@@ -100,7 +102,8 @@ public class Polly {
     }
 
     /**
-     * Execute a Jruby scriptlet, return the resulting value
+     * Execute a Jruby scriptlet, return the resulting value.  If there is no JrubyRuntime registered with Polly then
+     * a default JRubyRuntime is registered.
      *
      * @param args an argument array of the form ([argumentMap,] scriptlet[, Runtime.ID_1..Runtime.ID_N]).  scriptlet is the only
      * required parameter. argumentMap - a map of identifiers/values to bind to the scriptlet runtime, runtime.ids - specify each proxy
@@ -114,7 +117,8 @@ public class Polly {
     }
 
     /**
-     * Execute a Jruby scriptlet, return the resulting value
+     * Execute a Jruby scriptlet, return the resulting value.  If there is no JrubyRuntime registered with Polly then
+     * a default JrubyRuntime is registered.
      *
      * @param args
      * @param scriptlet
@@ -133,7 +137,8 @@ public class Polly {
     }
 
     /**
-     * Execute a Rhino scriptlet, return the resulting value
+     * Execute a Rhino scriptlet, return the resulting value.  If there is no RhinoRuntime registered with Polly then
+     * a default RhinoRuntime is registered.
      *
      * @param args an argument array of the form ([argumentMap,] scriptlet[, Runtime.ID_1..Runtime.ID_N]).  scriptlet is the only
      * required parameter. argumentMap - a map of identifiers/values to bind to the scriptlet runtime, runtime.ids - specify each proxy
@@ -147,7 +152,8 @@ public class Polly {
     }
 
     /**
-     * Execute a Rhino scriptlet, return the resulting value
+     * Execute a Rhino scriptlet, return the resulting value.  If there is no RhinoRuntime registered with Polly then
+     * a default RhinoRuntime is registered.
      *
      * @param args
      * @param scriptlet
@@ -170,7 +176,7 @@ public class Polly {
     }
 
     /**
-     * Retrieve the 'native' runtime object (Scriptable, ScriptingContainer, etc.)
+     * Retrieve the 'native' runtime object (Scriptable, ScriptingContainer, etc).
      *
      * @param rtId
      * @return
@@ -180,7 +186,7 @@ public class Polly {
     }
 
     /**
-     * Retrieve the Incogniot instance associate with Polly.
+     * Retrieve the Incognito instance associate with Polly.
      *
      * @return
      */

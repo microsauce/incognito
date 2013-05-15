@@ -27,11 +27,17 @@ public abstract class Runtime {
     protected ID id;
     protected Lang lang;
     protected Object runtime;
+    protected IdentifierConvention idConvention;
 
     private boolean initialized = false;
 
     public Runtime(Object runtime) {
         this.runtime = runtime;
+    }
+
+    public Runtime(Object runtime, IdentifierConvention conv) {
+        this(runtime);
+        this.idConvention = conv;
     }
 
     public Lang getLang() {
@@ -254,5 +260,49 @@ public abstract class Runtime {
      * @return
      */
     public abstract boolean ownsObject(Object obj);
+
+    /**
+     * Convert the given identifier into a form that complies with local runtime coding conventions (i.e. snake_case vs camelCase)
+     *
+     * Note: check for the given identifier first, if not found use the localized version
+     *
+     * @param identifier
+     * @return
+     */
+    public String localizeIdentifier(String identifier) {
+        if ( idConvention == IdentifierConvention.CAMEL_CASE ) return camelize(identifier);
+        else if ( idConvention == IdentifierConvention.SNAKE_CASE ) return snakify(identifier);
+        return identifier;
+    }
+
+    private String camelize(String identifier) {
+
+        if ( identifier.indexOf("_") == -1 ) {
+            String[] words = identifier.split("_");
+            if ( words.length > 0 ) {
+                StringBuilder buffer = new StringBuilder();
+                buffer.append(words[0].toLowerCase());
+                for ( int i = 1; i < words.length; i++ ) {
+                    buffer.append(words[i].substring(0,1).toUpperCase() + words[i].substring(1).toLowerCase());
+                }
+                return buffer.toString();
+            } else return identifier;
+        } else return identifier;
+    }
+
+    private String snakify(String identifier) {
+        if ( identifier.indexOf("_") != -1 ) {
+            String[] words = identifier.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
+            if ( words.length > 0 ) {
+                StringBuilder buffer = new StringBuilder();
+                for ( String word : words ) {
+                    buffer.append(word).append("_");
+                }
+                return buffer.substring(0,buffer.length()-1);
+            } else return identifier;
+        } else return identifier;
+
+    }
+
 
 }

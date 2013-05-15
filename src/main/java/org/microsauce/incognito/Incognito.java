@@ -6,7 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 // TODO null checks
 
 /**
+ * Incognito is a proxy factory. It takes raw, runtime specific object implementations and produces
+ * proxies suitable for idiomatic use in the receiving runtime.
  *
+ * @author microsauce
  */
 public class Incognito {
 
@@ -31,7 +34,7 @@ public class Incognito {
     }
 
     /**
-     * Return a proxy for the given object and Runtime.ID
+     * Return a proxy for the given object suitable for the given Runtime.ID
      *
      * @param rtId the Runtime.ID for which the proxy is created
      * @param rawObject the target object
@@ -63,6 +66,7 @@ public class Incognito {
 
     private Runtime sourceRuntime(Object rawObject) {
 
+        // null / primitives are ambiguous - return null
         if ( rawObject == null ) return null;
         if ( rawObject instanceof Number ) return null;
         if ( rawObject instanceof String ) return null;

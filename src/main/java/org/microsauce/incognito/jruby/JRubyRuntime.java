@@ -83,9 +83,12 @@ public class JRubyRuntime extends Runtime {
     @Override
     public MetaObject exec(MetaObject target, Object executionContext, List args) {
         if ( target.getType() == Type.EXECUTABLE ) {
-            args.add(0,target.getTargetObject());
+//            args.add(0,target.getTargetObject());
+            List rbArgs = new ArrayList();
+            rbArgs.add(target.getTargetObject());
+            rbArgs.addAll(args);
             return wrap(((ScriptingContainer) runtime).callMethod(
-                    incognito, "exec_proc", args.toArray()));
+                    incognito, "exec_proc", rbArgs.toArray()));
         } else {
             // Type.METHOD
             return execMethod(target, target.getIdentifier(), args);

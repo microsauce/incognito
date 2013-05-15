@@ -6,10 +6,7 @@ import org.microsauce.incognito.MetaObject
 import org.microsauce.incognito.Type
 import org.microsauce.incognito.Runtime
 
-// TODO
-//  override respondsTo
-//  override hasProperty
-class GroovyProxy { //implements GroovyInterceptable {
+class GroovyProxy {
 
     MetaObject obj
     org.microsauce.incognito.Runtime thisRuntime

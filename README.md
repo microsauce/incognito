@@ -1,4 +1,4 @@
-incognito
+incognito - 0.1
 =========
 
 Facilitating idiomatic interoperability of dynamic languages on the JVM.

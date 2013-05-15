@@ -28,11 +28,13 @@ class JRubyIncognito
     end
 
     protected
-      def method_missing(name, *args, &block) # TODO add block support
+      def method_missing(name, *args, &block) # TODO test block support
+
         if @meta_object.origin_runtime.id == Runtime::ID::JRUBY
           return @meta_object.target.send name, *args
         else
-          member = @meta_object.origin_runtime.get_member(@meta_object, name) #, prepare_arguments(args))
+          member = @meta_object.origin_runtime.get_member(@meta_object, name)
+
           if not member.type.equals(Type::METHOD)
             name_str = name.to_s
             if name_str.end_with?('=')
@@ -41,6 +43,9 @@ class JRubyIncognito
               return @this_runtime.proxy(member)
             end
           else
+            if not block.nil?
+              args << block
+            end
             return @this_runtime.proxy(member.origin_runtime.exec(member, nil, prepare_arguments(args)))
           end
         end
@@ -51,6 +56,7 @@ class JRubyIncognito
           @meta_object.origin_runtime.proxy(@this_runtime.wrap(it))
         }
       end
+
   end
 
   def create_obj_proxy(target, this_runtime)
