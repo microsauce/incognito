@@ -13,7 +13,7 @@ import org.mozilla.javascript.ImporterTopLevel
 import static org.microsauce.incognito.Runtime.ID
 
 /**
- * Polly is a utility class for writing polyglot test scripts.
+ * Polly is a utility class for writing polyglot scripts.             *
  *
  * Usage:
  *
@@ -39,26 +39,59 @@ import static org.microsauce.incognito.Runtime.ID
  *  ''')
  */
 public class Polly {
-
+    /**
+     * The JRuby runtime ID
+     */
     static Runtime.ID JRUBY = Runtime.ID.JRUBY
+
+    /**
+     * The Groovy runtime ID
+     */
     static Runtime.ID GROOVY = Runtime.ID.GROOVY
+
+    /**
+     * The Rhino runtime ID
+     */
     static Runtime.ID RHINO = Runtime.ID.RHINO
 
     static Map<Runtime.ID,Runtime> runtimes = [:]
-
     static Incognito incognito
     static rbNdx = 0
     static jsNdx = 0
 
+    /**
+     * Register an Incognito Runtime with Polly.
+     *
+     * @param rt
+     * @return
+     */
     static registerRuntime(Runtime rt) {
         if ( rt ) runtimes[rt.id] = rt
         return rt
     }
 
+    /**
+     * Execute a Groovy scriptlet, return the resulting value
+     *
+     * @param args an argument array of the form ([argumentMap,] scriptlet[, Runtime.ID_1..Runtime.ID_N]).  scriptlet is the only
+     * required parameter. argumentMap - a map of identifiers/values to bind to the scriptlet runtime, runtime.ids - specify each proxy
+     * in which to wrap the script return value
+     *
+     * @return when no Runtime.ID is specified -- the script return value (raw).  when one Runtime.ID is specified - a proxy of the
+     * specified type.  when multiple Runtime.IDs are specified - a Runtime.ID => proxy mapping
+     */
     static groovy(...args) {
         groovy(*standardizeArgs(args))
     }
 
+    /**
+     * Execute a Groovy scriptlet, return the resulting value
+     *
+     * @param args
+     * @param scriptlet
+     * @param rtIds
+     * @return
+     */
     static groovy(Map args, String scriptlet, List<ID> rtIds) {
         def binding = new Binding(args ?: [:])
         def shell = new GroovyShell(binding)
@@ -66,10 +99,28 @@ public class Polly {
         proxies(retValue, rtIds)
     }
 
+    /**
+     * Execute a Jruby scriptlet, return the resulting value
+     *
+     * @param args an argument array of the form ([argumentMap,] scriptlet[, Runtime.ID_1..Runtime.ID_N]).  scriptlet is the only
+     * required parameter. argumentMap - a map of identifiers/values to bind to the scriptlet runtime, runtime.ids - specify each proxy
+     * in which to wrap the script return value
+     *
+     * @return when no Runtime.ID is specified -- the script return value (raw).  when one Runtime.ID is specified - a proxy of the
+     * specified type.  when multiple Runtime.IDs are specified - a Runtime.ID => proxy mapping
+     */
     static jruby(...args) {
         jruby(*standardizeArgs(args))
     }
 
+    /**
+     * Execute a Jruby scriptlet, return the resulting value
+     *
+     * @param args
+     * @param scriptlet
+     * @param rtIds
+     * @return
+     */
     static jruby(Map args, String scriptlet, List<ID> rtIds) {
         def jruby = nativeRt(JRUBY)
         args.each {key,value ->
@@ -81,10 +132,28 @@ public class Polly {
         proxies(retValue, rtIds)
     }
 
+    /**
+     * Execute a Rhino scriptlet, return the resulting value
+     *
+     * @param args an argument array of the form ([argumentMap,] scriptlet[, Runtime.ID_1..Runtime.ID_N]).  scriptlet is the only
+     * required parameter. argumentMap - a map of identifiers/values to bind to the scriptlet runtime, runtime.ids - specify each proxy
+     * in which to wrap the script return value
+     *
+     * @return when no Runtime.ID is specified -- the script return value (raw).  when one Runtime.ID is specified - a proxy of the
+     * specified type.  when multiple Runtime.IDs are specified - a Runtime.ID => proxy mapping
+     */
     static rhino(...args) {
         rhino(*standardizeArgs(args))
     }
 
+    /**
+     * Execute a Rhino scriptlet, return the resulting value
+     *
+     * @param args
+     * @param scriptlet
+     * @param rtIds
+     * @return
+     */
     static rhino(Map args, String scriptlet, List<ID> rtIds) {
         def retValue = null
         def rhino = nativeRt(RHINO)
@@ -100,11 +169,21 @@ public class Polly {
         return proxies(retValue, rtIds)
     }
 
-
+    /**
+     * Retrieve the 'native' runtime object (Scriptable, ScriptingContainer, etc.)
+     *
+     * @param rtId
+     * @return
+     */
     static nativeRt(Runtime.ID rtId) {
        runtime(rtId).runtime
     }
 
+    /**
+     * Retrieve the Incogniot instance associate with Polly.
+     *
+     * @return
+     */
     static Incognito incognito() {
         if ( !incognito ) {
             incognito = new Incognito()
@@ -118,6 +197,30 @@ public class Polly {
             }
         }
         return incognito
+    }
+
+    /**
+     * Wrap the given object in a proxy suitable for the given Runtime.ID
+     *
+     * @param rtId the Runtime.ID
+     * @param obj the target object
+     * @return a proxy suitable for the given Runtime.ID
+     */
+    static proxy(ID rtId, Object obj) {
+        if ( rtId ) {
+            return incognito().assumeIdentity(rtId, obj)
+        } else return obj
+    }
+
+    /**
+     * An alias for proxy
+     *
+     * @param rtId
+     * @param obj
+     * @return
+     */
+    static assumeIdentity(ID rtId, Object obj) {
+        proxy(rtId, obj)
     }
 
     //
@@ -145,16 +248,6 @@ public class Polly {
         } else if (rtId == GROOVY) return registerRuntime(new GroovyRuntime())
     }
 
-    static proxy(ID rtId, Object obj) {
-        if ( rtId ) {
-            return incognito().assumeIdentity(rtId, obj)
-        } else return obj
-    }
-
-    static assumeIdentity(ID rtId, Object obj) {
-        proxy(rtId, obj)
-    }
-
     static private Runtime runtime(Runtime.ID rtId) {
         def rt = runtimes[rtId]
         if ( !rt ) return registerDefault(rtId)
@@ -175,7 +268,7 @@ public class Polly {
     private static List standardizeArgs(...args) {
         def standardizedArgs = []
         switch (args.length) {
-            case 0: throw new RuntimeException('illegal arguments: a scriptlet must be provided: ([params,] scriptlet[, proxy1, proxy2, .. proxyN])')
+            case 0: throw new RuntimeException('illegal arguments: a scriptlet must be provided: ([params,] scriptlet[, Runtime.ID_1..Runtime.ID_N])')
             case 1:
                 if (!(args[0] instanceof String)) throw new RuntimeException('illegal arguments: a scriptlet must be provided')
                 standardizedArgs.addAll([null, args[0],[]])

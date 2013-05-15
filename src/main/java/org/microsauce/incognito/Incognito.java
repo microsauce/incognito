@@ -4,20 +4,39 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 // TODO null checks
+
+/**
+ *
+ */
 public class Incognito {
 
     private Map<Runtime.ID,Runtime> runtimeByID;
 
+    /**
+     * Instantiate an Incognito instance
+     */
     public Incognito() {
         runtimeByID = new ConcurrentHashMap<Runtime.ID, Runtime>();
     }
 
+    /**
+     * Register a runtime with this instance of Incognito
+     *
+     * @param runtime
+     */
     public void registerRuntime(Runtime runtime) {
         runtimeByID.put(runtime.getId(), runtime);
 
         runtime.initialize();
     }
 
+    /**
+     * Return a proxy for the given object and Runtime.ID
+     *
+     * @param rtId the Runtime.ID for which the proxy is created
+     * @param rawObject the target object
+     * @return a proxy suitable for the given Runtime.ID
+     */
     public Object proxy(Runtime.ID rtId, Object rawObject) {
         Runtime rt = runtimeByID.get(rtId);
         if ( rt == null )
@@ -25,6 +44,13 @@ public class Incognito {
         return rt.proxy(wrap(rawObject));
     }
 
+    /**
+     * This method is an alias for proxy
+     *
+     * @param rtId
+     * @param rawObject
+     * @return
+     */
     public Object assumeIdentity(Runtime.ID rtId, Object rawObject) {
         return proxy(rtId, rawObject);
     }

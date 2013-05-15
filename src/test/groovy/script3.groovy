@@ -33,6 +33,7 @@ def groovy_kid = groovy('''
     def dob
     def callback
     def sett
+    def hash
 
     Kid(name,age,dob,callback, set) {
       this.name = name
@@ -59,7 +60,6 @@ println "rhino playground"
 //[groovy_kid].each { kid ->
     println "\tkid $kid hitting the rhino playground"
 
-    // TODO why is jruby  kid.age a list proxy
     rhino([kid: kid], '''
       println("kid.name: " + kid.name);
       println("kid.age: " + kid.age);
@@ -114,6 +114,9 @@ jruby([kid: groovy_kid[JRUBY]], '''
     kid.sett.each { |i|
       puts "\t#{i}"
     }
-    kid.sett <<
+    kid.sett << { "Jane Doe" => 10, "Jim Doe" => 6 }
+    kid.hash = { "Jane Doe" => 10, "Jim Doe" => 6 }
 ''')
 
+println "da set after jruby playground: " + groovy_kid[GROOVY].sett
+println "how old is Jane Doe: " + groovy_kid[GROOVY].hash['Jane Doe']
