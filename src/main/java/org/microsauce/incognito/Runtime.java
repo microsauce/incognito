@@ -27,7 +27,7 @@ public abstract class Runtime {
     protected ID id;
     protected Lang lang;
     protected Object runtime;
-    protected IdentifierConvention idConvention;
+    protected List<IdentifierConvention> idConventions;
 
     private boolean initialized = false;
 
@@ -35,9 +35,11 @@ public abstract class Runtime {
         this.runtime = runtime;
     }
 
-    public Runtime(Object runtime, IdentifierConvention conv) {
+    public Runtime(Object runtime, IdentifierConvention ... conventions) {
         this(runtime);
-        this.idConvention = conv;
+        for ( IdentifierConvention conv : conventions ) {
+            idConventions.add(conv);
+        }
     }
 
     public Lang getLang() {
@@ -60,6 +62,14 @@ public abstract class Runtime {
     // object
     //
 
+    private String resolvedIdentifier(MetaObject target, String name) {
+        for ( IdentifierConvention thisConvention : idConventions ) {
+            String id = thisConvention.enforce(name);
+            if ( respondTo(target, id) ) return id;
+        }
+        return name;
+    }
+
     /**
      * Retrieve a property from an object.
      *
@@ -70,7 +80,11 @@ public abstract class Runtime {
      * @param name
      * @return
      */
-    public abstract MetaObject getProp(MetaObject target, String name);
+    public MetaObject getProp(MetaObject target, String name) {
+        return doGetProp(target, resolvedIdentifier(target, name));
+    }
+
+    protected abstract MetaObject doGetProp(MetaObject target, String name);
 
     /**
      * Set the property of an object.
@@ -79,7 +93,12 @@ public abstract class Runtime {
      * @param name
      * @param value
      */
-    public abstract void setProp(MetaObject target, String name, MetaObject value);
+    public void setProp(MetaObject target, String name, MetaObject value) {
+        doSetProp(target, resolvedIdentifier(target, name), value);
+    }
+
+    protected abstract void doSetProp(MetaObject target, String name, MetaObject value);
+
 
     /**
      * Execute a method.
@@ -89,7 +108,11 @@ public abstract class Runtime {
      * @param args
      * @return
      */
-    public abstract MetaObject execMethod(MetaObject target, String name, List args);
+    public MetaObject execMethod(MetaObject target, String name, List args) {
+        return doExecMethod(target, resolvedIdentifier(target, name), args);
+    }
+
+    protected abstract MetaObject doExecMethod(MetaObject target, String name, List args);
 
     /**
      * Does the target object respond to the given method name.
@@ -270,9 +293,7 @@ public abstract class Runtime {
      * @return
      */
     public String localizeIdentifier(String identifier) {
-        if ( idConvention == IdentifierConvention.CAMEL_CASE ) return camelize(identifier);
-        else if ( idConvention == IdentifierConvention.SNAKE_CASE ) return snakify(identifier);
-        return identifier;
+        return idConventions.get(0).enforce(identifier);
     }
 
     private String camelize(String identifier) {

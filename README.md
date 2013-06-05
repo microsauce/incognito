@@ -14,11 +14,15 @@ Incognito is a library that enables objects created in supported JVM runtimes to
 supported runtime and it defines proxies to enable idiomatic usage of these objects in receiving runtimes.
 
 ### goals
-
 Support interoperablity of objects, primitives (strings, integers, floating point, etc), and literal data-structure types
 (arrays, sets, hashes, etc).  Provide support for basic OO features: property access, method invocation, and duck-type
 reflection (respond_to?, hasProperty,respondsTo, undefined, etc).  Support for executable/callback types (functions,
 closures, lambdas, etc).
+
+#### out of scope
+
+* Equality of user defined types.
+* Comparison of user defined types.
 
 ### strategy
 
@@ -116,3 +120,117 @@ via Polly (a poly-glot script utility).
     } finally {if (ctx) ctx.exit()}
 
 ```
+
+=================================================================================
+
+Test.[js|groovy|ruby]:
+
+	define Test class:
+		define TestSubject class /* each RT TestSubject impls must all define the same property names/methods */
+		define beforeConstantsHash
+		defind afterConstantsHash
+
+		def constructor TestClass()
+			instantiate testSubject
+			instantiate beforeConstantsHash
+			instantiate afterConstantsHash
+
+		def addExercises([exercising])
+
+		def run method:
+			for each exercise
+				def testObject = new TestSubject()
+				thisExercise.run(testSubject, constants)
+				assertions(testSubject, afterConstantsHash)
+
+		define assertions(testSubject,constantsHash) /* all impls must make uniform assertions */
+			. . .
+
+		define exercise(testSubject) /* all impls must manipulate testSubjects in the same way */
+			- assertions(testObject,beforeConstantsHash)
+
+			- exercises:
+				- object
+					- duck-type reflection
+						- respondsTo, hasProperty, undefined, etc.
+					- properties (modify)
+						- primitives
+						- objects
+						- callbacks
+						- dates
+					- methods / executables
+						- parameters
+							- primitives
+							- objects
+							- callbacks
+							- dates
+						- return
+							- primitives
+							- objects
+							- callbacks
+							- dates
+
+			- assertions(testObject,afterConstantsHash) -- (reuse - same as setup script after assertions)
+
+	new Test()
+
+Polly Script:
+
+	def testers = []
+	testers << rhino(/*load script from cp*/, GROOVY)
+	testers << jruby(/*load script from cp*/, GROOVY)
+	testers << groovy(/*load script from cp*/)
+
+	testers.each { test -> // TODO
+		test.addExercises(testers)
+		tester.run
+	}
+
+
+===================================================================================
+===================================================================================
+===================================================================================
+
+setup class:
+
+	- define setup class
+		define beforeConstantsHash
+		defind afterConstantsHash
+
+		define 'exercise' method:
+			for each exercise in exercises
+				def testObject = new TestClass()
+				thisExercise.run(testObject, constants)
+				assertions(testObject, afterConstantsHash)
+
+exercise class:
+
+	- define exercise class
+		- define 'run' method
+			- assertions(testObject,beforeConstantsHash)
+
+			- exercises:
+				- object
+					- duck-type reflection
+						- respondsTo, hasProperty, undefined, etc.
+					- properties (modify)
+						- primitives
+						- objects
+						- callbacks
+						- dates
+					- methods / executables
+						- parameters
+							- primitives
+							- objects
+							- callbacks
+							- dates
+						- return
+							- primitives
+							- objects
+							- callbacks
+							- dates
+
+			- assertions(testObject,afterConstantsHash) -- (reuse - same as setup script after assertions)
+
+	- instantiate/return exercise object
+

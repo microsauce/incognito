@@ -21,7 +21,8 @@ public class RhinoRuntime extends Runtime {
     private NativeFunction targetToString;
 
     public RhinoRuntime(Object runtime) {
-        super(runtime);
+        // coffee script conventions tend to follow Ruby (so include snake case)
+        super(runtime, new CamelCase(), new SnakeCase(), new FatSnakeCase());
         lang = Lang.JAVASCRIPT;
         id = ID.RHINO;
     }
@@ -48,18 +49,18 @@ public class RhinoRuntime extends Runtime {
     }
 
     @Override
-    public MetaObject getProp(MetaObject target, String name) {
+    public MetaObject doGetProp(MetaObject target, String name) {
         return wrap(((ScriptableObject) target.getTargetObject()).get(name));
     }
 
     @Override
-    public void setProp(MetaObject target, String name, MetaObject value) {
+    public void doSetProp(MetaObject target, String name, MetaObject value) {
         ((ScriptableObject)target.getTargetObject()).put(
                 name, (ScriptableObject)target.getTargetObject(), proxy(value));    // TODO remove wrap
     }
 
     @Override
-    public MetaObject execMethod(MetaObject target, String name, List args) {
+    public MetaObject doExecMethod(MetaObject target, String name, List args) {
         ScriptableObject thisScope = (ScriptableObject) target.getTargetObject();
         MetaObject metaProperty = getProp(target, name);
         if ( metaProperty.getTargetObject() instanceof NativeFunction )

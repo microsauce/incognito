@@ -2,17 +2,20 @@ package org.microsauce.incognito.groovy
 
 import groovy.transform.CompileStatic
 import org.joda.time.DateTime
+import org.microsauce.incognito.CamelCase
 import org.microsauce.incognito.CommonDate
+import org.microsauce.incognito.FatSnakeCase
 import org.microsauce.incognito.Lang
 import org.microsauce.incognito.MetaObject
 import org.microsauce.incognito.Runtime
+import org.microsauce.incognito.SnakeCase
 import org.microsauce.incognito.Type
 import static org.microsauce.incognito.Runtime.ID
 
 class GroovyRuntime extends Runtime {
 
     public GroovyRuntime(Object runtime) {
-        super(runtime)
+        super(runtime, new CamelCase(), new FatSnakeCase())
         lang = Lang.GROOVY
         id = ID.GROOVY
     }
@@ -21,17 +24,17 @@ class GroovyRuntime extends Runtime {
     protected void doInitialize() {}
 
     @Override
-    MetaObject getProp(MetaObject target, String name) {
+    MetaObject doGetProp(MetaObject target, String name) {
         wrap(target.targetObject."$name")
     }
 
     @Override
-    void setProp(MetaObject target, String name, MetaObject value) {
+    void doSetProp(MetaObject target, String name, MetaObject value) {
         target.targetObject."$name" = proxy(value)
     }
 
     @Override
-    MetaObject execMethod(MetaObject target, String name, List args) {
+    MetaObject doExecMethod(MetaObject target, String name, List args) {
         wrap(target.targetObject."$name"(*args))
     }
 

@@ -17,7 +17,7 @@ public class JRubyRuntime extends Runtime {
     private RubyObject incognito;
 
     public JRubyRuntime(Object runtime) {
-        super(runtime);
+        super(runtime, new SnakeCase(), new FatSnakeCase());
         lang = Lang.RUBY;
         id = ID.JRUBY;
     }
@@ -33,19 +33,19 @@ public class JRubyRuntime extends Runtime {
     }
 
     @Override
-    public MetaObject getProp(MetaObject target, String name) {
+    public MetaObject doGetProp(MetaObject target, String name) {
         return execMethod(target, name, new ArrayList());
     }
 
     @Override
-    public void setProp(MetaObject target, String name, MetaObject value) {
+    public void doSetProp(MetaObject target, String name, MetaObject value) {
         List arg = new ArrayList();
         arg.add(value);
         execMethod(target, name, arg);
     }
 
     @Override
-    public MetaObject execMethod(MetaObject target, String name, List args) {
+    public MetaObject doExecMethod(MetaObject target, String name, List args) {
         return wrap(((ScriptingContainer) runtime).callMethod(
                 target.getTargetObject(), name, args.toArray()));
     }
