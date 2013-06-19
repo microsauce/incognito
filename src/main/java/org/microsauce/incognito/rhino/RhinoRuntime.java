@@ -120,6 +120,13 @@ public class RhinoRuntime extends Runtime {
         }
     }
 
+    public MetaObject wrap(Object obj) {
+    	// ConsString is a special case
+    	if ( obj instanceof ConsString )
+    		obj = obj.toString();
+    	return super.wrap(obj);
+    }
+    
     @Override
     public Type typeof(Object obj) {
 

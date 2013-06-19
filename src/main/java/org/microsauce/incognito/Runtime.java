@@ -1,17 +1,37 @@
 package org.microsauce.incognito;
 
-import java.util.*;
-
 import static java.lang.reflect.Proxy.newProxyInstance;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.jruby.embed.ScriptingContainer;
+import org.microsauce.incognito.groovy.GroovyRuntime;
+import org.microsauce.incognito.jruby.JRubyRuntime;
+import org.microsauce.incognito.rhino.RhinoRuntime;
+import org.mozilla.javascript.Scriptable;
+
 /**
- * This class is an adaptor that defines a standard interface for interacting
+ * This adaptor class defines a standard interface for interacting
  * with disparate language runtimes.
  *
  * @author microsauce
  */
 public abstract class Runtime {
 
+	public static Runtime getRuntime(Object rawRt) {
+		if ( rawRt == null ) return new GroovyRuntime(rawRt);
+		else if ( rawRt instanceof ScriptingContainer )
+			return new JRubyRuntime(rawRt);
+		else if ( rawRt instanceof Scriptable ) 
+			return new RhinoRuntime(rawRt);
+		else throw new RuntimeException("Invalid language runtime reference: " + rawRt);
+	}
+	
     public static enum ID {
         JRUBY("jruby"), RHINO("rhino"), GROOVY("groovy");
 
@@ -37,6 +57,7 @@ public abstract class Runtime {
 
     public Runtime(Object runtime, IdentifierConvention ... conventions) {
         this(runtime);
+        idConventions = new ArrayList<IdentifierConvention>();
         for ( IdentifierConvention conv : conventions ) {
             idConventions.add(conv);
         }

@@ -33,7 +33,6 @@ def proxyExercise = { values ->
     assert obj.date.hourOfDay.get() == 9
     assert obj.date.minuteOfHour.get() == 10
 
-    assert
 
 }
 

@@ -1,0 +1,31 @@
+
+
+apply plugin: 'groovy'
+
+defaultTasks 'clean', 'jar'
+
+//
+// enable joint compilation with separate 'java' source tree
+//
+sourceSets.main.java.srcDirs = []
+sourceSets.main.groovy.srcDir 'src/main/java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile fileTree(dir: 'lib', includes: ['**/*.jar'])
+}
+
+classes << {
+    copy {
+        from 'src/main/javascript'
+        into 'build/classes/main'
+    }
+    copy {
+        from 'src/main/ruby'
+        into 'build/classes/main'
+    }
+}
+
