@@ -1,5 +1,7 @@
 package org.microsauce.incognito;
 
+import org.microsauce.incognito.util.CloneUtil;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +20,10 @@ public class MapProxy extends BaseProxy {
         this.trg = target;
         this.trgMap = target.getTargetObject();
         this.destRuntime = dest;
+    }
+
+    public Object clone() {
+        return CloneUtil.doClone(trg);
     }
 
     public Object get(Object key) {

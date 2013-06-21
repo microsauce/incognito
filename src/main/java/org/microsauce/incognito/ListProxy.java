@@ -1,5 +1,7 @@
 package org.microsauce.incognito;
 
+import org.microsauce.incognito.util.CloneUtil;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,6 +15,10 @@ public class ListProxy extends CollectionProxy {
         super(target, dest);
         this.trgList = target.getTargetObject();
         this.trg = target;
+    }
+
+    public Object clone() {
+        return CloneUtil.doClone(trg);
     }
 
     public Object get(int ndx) {

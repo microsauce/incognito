@@ -1,5 +1,7 @@
 package org.microsauce.incognito;
 
+import org.microsauce.incognito.util.CloneUtil;
+
 import java.util.Iterator;
 import java.util.Set;
 
@@ -12,6 +14,10 @@ public class SetProxy extends CollectionProxy {
         super(target, dest);
         this.trg = target;
         this.trgSet = target.getTargetObject();
+    }
+
+    public Object clone() {
+        return CloneUtil.doClone(trg);
     }
 
     public boolean add(Object obj) {

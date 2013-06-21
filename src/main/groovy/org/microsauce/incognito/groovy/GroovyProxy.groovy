@@ -5,14 +5,82 @@ import org.codehaus.groovy.reflection.CachedClass
 import org.microsauce.incognito.MetaObject
 import org.microsauce.incognito.Type
 import org.microsauce.incognito.Runtime
+import org.microsauce.incognito.util.CloneUtil
 
-class GroovyProxy {
+class GroovyProxy extends HashMap<String,Object> {
 
     MetaObject obj
     org.microsauce.incognito.Runtime thisRuntime
 
     @CompileStatic
     GroovyProxy(MetaObject obj, org.microsauce.incognito.Runtime rt) {this.obj = obj; thisRuntime = rt}
+
+//    Object clone() {     // TODO handle collections [list, set, hash]
+//        Map<String,Object> clone = new HashMap<String,Object>()
+//        for ( entry in entrySet() ) { // all entry values will be MetaObject
+//            if ( entry.value.type == Type.PRIMITIVE || entry.value.type == Type.DATE )
+//                clone[entry.key] = entry.value.getTargetObject()
+//            else if ( entry.value.type == Type.OBJECT )
+//                clone[entry.key] = propertyMissing(entry.key).clone()
+//            else if ( entry.value.type == Type.ARRAY ) {
+//                List array = []
+//                for ( element in obj.getTargetObject() ) {
+//                    array << doClone
+//                }
+//            }
+//        }
+//        return clone
+//    }
+    Object clone() {
+        Map<String,Object> clone = new HashMap<String,Object>()
+        for ( entry in entrySet() ) { // all entry values will be MetaObject
+            clone[entry.key] = CloneUtil.doClone(entry.value)
+        }
+        clone
+    }
+
+//    Object doClone(MetaObject obj) {
+//        if ( obj.type == Type.PRIMITIVE || obj.type == Type.DATE )
+//            return obj.getTargetObject()
+//        else if ( obj.type == Type.OBJECT )
+//            return new GroovyProxy(obj, obj.originRuntime).clone()
+//        else if ( obj.type == Type.ARRAY || obj.type == Type.SET ) {
+//            List array = []
+//            for ( element in obj.getTargetObject() ) {
+//                array << doClone(element)
+//            }
+//            return array
+//        }
+//        else if ( obj.type == Type.HASH ) {
+//            Map hash = []
+//            for ( entry in obj.getTargetObject() ) {
+//                hash[entry.key] << doClone(entry.value)
+//            }
+//            return hash
+//        }
+//    }
+
+    Set<Map.Entry<String, Object>> entrySet() {
+        Collection members = obj.originRuntime.members(obj)
+        Set<Map.Entry<String, Object>> set = []
+        for ( memberName in members ) {
+            Object value = obj.originRuntime.getMember(obj, memberName)
+            set << new AbstractMap.SimpleEntry<String,Object>(memberName, value)
+        }
+        set
+    }
+
+    Object get(Object key) {
+        propertyMissing(key)
+    }
+
+    Object put(String key, Object value) {
+        propertyMissing(key, value)
+    }
+
+    boolean containsKey(Object key) {
+        respondsTo(key).size() > 0
+    }
 
     def methodMissing(String name, args) { // TODO this causes stack overflow when method does not exist
         org.microsauce.incognito.Runtime oRuntime = obj.getOriginRuntime()
@@ -42,7 +110,7 @@ class GroovyProxy {
         }
     }
 
-    @Override
+//    @Override
     @CompileStatic
     List respondsTo(String identifier) {
         def respondsTo = []
@@ -56,7 +124,7 @@ class GroovyProxy {
         }
     }
 
-    @Override
+//    @Override
     MetaProperty hasProperty(String identifier) {
         def hasProperty = null
         def targetMember = obj.originRuntime.getMember(obj,identifier)
