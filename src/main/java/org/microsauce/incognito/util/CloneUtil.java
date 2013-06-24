@@ -1,5 +1,6 @@
 package org.microsauce.incognito.util;
 
+import org.jruby.RubySymbol;
 import org.microsauce.incognito.MetaObject;
 import org.microsauce.incognito.Type;
 import org.microsauce.incognito.groovy.GroovyProxy;
@@ -16,8 +17,6 @@ import java.util.*;
 public class CloneUtil {
 
     public static Object doClone(MetaObject obj) {
-System.out.println("\t CloneUtil.doClone !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-System.out.println("\t CloneUtil.doClone !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         if ( obj.getType() == Type.PRIMITIVE || obj.getType() == Type.DATE )
             return obj.getTargetObject();
         else if ( obj.getType() == Type.OBJECT )
@@ -32,11 +31,16 @@ System.out.println("\t CloneUtil.doClone !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         else if ( obj.getType() == Type.HASH ) {
             Map hash = new HashMap();
             for ( Map.Entry entry : (Set<Map.Entry>)((Map) obj.getTargetObject()).entrySet() ) {
-                hash.put(entry.getKey(), doClone((MetaObject)entry.getValue()));
+                hash.put(transformKey(entry.getKey()), doClone((MetaObject)entry.getValue()));
             }
             return hash;
         }
         return null;
     }
 
+    private static Object transformKey(Object key) {
+    	if ( key instanceof RubySymbol ) // FIXME
+    		return key.toString();
+    	return key;
+    }
 }

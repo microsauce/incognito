@@ -27,8 +27,14 @@ public class MapProxy extends BaseProxy {
     }
 
     public Object get(Object key) {
+    	Object value = trg.getTargetObject().get(key);
+
+    	if ( value == null && (key instanceof String || key instanceof Number) ) {
+    		value = trg.getOriginRuntime().toSymbol(key);
+    	}
+    		
         return destRuntime.proxy(
-                trg.getOriginRuntime().wrap(trg.getTargetObject().get(key)));
+                trg.getOriginRuntime().wrap(value));
     }
 
     public Object put(Object key, Object value) {

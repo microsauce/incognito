@@ -95,10 +95,22 @@ public class JRubyRuntime extends Runtime {
         }
     }
 
+    public MetaObject wrap(Object obj) {
+    	if ( obj instanceof org.jruby.RubySymbol ) 
+    		obj = obj.toString();
+    	return super.wrap(obj);
+    }
+    
+    public Object toSymbol(Object obj) {
+    	if ( obj instanceof RubySymbol ) return obj;
+    	else return (Boolean)((ScriptingContainer) runtime).callMethod(
+                incognito, "to_sym", new Object[] {obj});
+    }
+    
     @Override
     public Type typeof(Object obj) {
         if ( obj == null ) return null;
-        if ( obj instanceof String ) return Type.PRIMITIVE;
+        if ( obj instanceof String || obj instanceof org.jruby.RubySymbol) return Type.PRIMITIVE;
         if ( obj instanceof Number ) return Type.PRIMITIVE;
         if ( obj instanceof RubyArray ) return Type.ARRAY;
         if ( obj instanceof RubyHash ) return Type.HASH;
@@ -137,7 +149,19 @@ public class JRubyRuntime extends Runtime {
     public Object dateProxy(MetaObject obj) {
         return ((ScriptingContainer)runtime).callMethod(incognito, "create_ruby_date", new Object[] {obj});
     }
-
+    
+    @Override
+    public Object symbolProxy(MetaObject obj) {
+    	return obj.getTargetObject();
+    }
+    
+    @Override
+    public String symbolToString(MetaObject symbol) {
+    	return symbol.getTargetObject().toString();
+    }
+    
+    public boolean supportSymbols() {return true;}
+    
     @Override
     public boolean ownsObject(Object obj) {
         return obj.getClass().getName().startsWith(JRUBY_IDENTIFIER);

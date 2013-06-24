@@ -179,6 +179,10 @@ public abstract class Runtime {
      */
     public abstract MetaObject exec(MetaObject target, Object executionContext, List args);
 
+    public Object toSymbol(Object obj) {
+    	return obj.toString();
+    }
+    
     /**
      * Determine the Type of the given object.
      *
@@ -196,6 +200,8 @@ public abstract class Runtime {
         Type type = typeof(obj);
         if ( Type.PRIMITIVE.equals(type) ) {
             return new MetaObject(Type.PRIMITIVE, this, obj);
+        } else if (Type.SYMBOL.equals(type)) {
+        	return new MetaObject(Type.SYMBOL, this, obj);
         } else if (Type.ARRAY.equals(type)) {
             return new MetaObject<List>(Type.ARRAY, this, (List)obj) {
                 public Object conversion() {
@@ -217,6 +223,9 @@ public abstract class Runtime {
             };
         } else if ( Type.UNDEFINED.equals(type) ) {
             return new MetaObject(Type.UNDEFINED, this, obj);
+//        } else if ( Type.HASH_ENTRY.equals(type) ) {
+//            // TODO
+//        	return null;
         } else {
             return new MetaObject(Type.OBJECT, this, obj);
         }
@@ -250,23 +259,26 @@ public abstract class Runtime {
     public Object arrayProxy(MetaObject obj) {
         List array = (List) newProxyInstance(
                 this.getClass().getClassLoader(),
-                new Class[] { List.class },
+                new Class[] { List.class, Cloneable.class },
                 new ListProxy(obj, this));
         return array;
     }
     public Object hashProxy(MetaObject obj) {
         return (Map) newProxyInstance(
                 this.getClass().getClassLoader(),
-                new Class[] { Map.class },
+                new Class[] { Map.class, Cloneable.class },
                 new MapProxy(obj, this));
     }
     public Object dataSetProxy(MetaObject obj) {
         return (Set) newProxyInstance(
                 this.getClass().getClassLoader(),
-                new Class[] { Set.class },
+                new Class[] { Set.class, Cloneable.class },
                 new SetProxy(obj, this));
     }
     public abstract Object dateProxy(MetaObject obj);
+    public abstract Object symbolProxy(MetaObject obj);
+    public abstract String symbolToString(MetaObject obj);
+    public abstract boolean supportSymbols();
 
     public Object proxy(MetaObject obj) { // TODO
         if ( obj == null ) return obj;
@@ -286,6 +298,8 @@ public abstract class Runtime {
             return executableProxy(obj);
         } else if (Type.DATE.equals(type)) {
             return dateProxy(obj);
+        } else if (Type.SYMBOL.equals(type)) {
+        	return symbolProxy(obj);
         } else if (Type.UNDEFINED.equals(type)) {
             return undefined();
         } else {

@@ -148,5 +148,16 @@ class GroovyRuntime extends Runtime {
         return obj instanceof GroovyObject
     }
 
+	@Override
+	public Object symbolProxy(MetaObject obj) {
+		return obj.getOriginRuntime().symbolToString(obj);
+	}
+	
+	public boolean supportSymbols() {return false;}
+
+	@Override
+	public String symbolToString(MetaObject obj) {
+		throw new UnsupportedOperationException("RhinoRuntime.symbolToString(obj) is not implemented");
+	}
 
 }

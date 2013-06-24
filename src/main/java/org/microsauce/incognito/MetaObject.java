@@ -29,11 +29,11 @@ public class MetaObject<T> implements IncognitoProxy {
     }
 
     public boolean equals(Object object) {
-        return object.equals(object);
+        return object == null ? false : object.equals(object);
     }
 
     public int hashCode() {
-        return object.hashCode();
+        return object == null ? 0 : object.hashCode();
     }
 
     public Runtime getOriginRuntime() {

@@ -1,28 +1,28 @@
 incognito - 0.1
 =========
 
-Facilitating idiomatic interoperability of dynamic languages on the JVM.
+Facilitate idiomatic interoperability of dynamic languages on the JVM.
 
 ### the problem
 Many languages target the JVM.  Most of these languages have excellent interoperability with Java.  The problem is
-(outside of their disparate runtime API's) they don't interoperate well with each other.  Incognito is an attempt to
-address this problem.
+(outside of their disparate runtime API's) they don't operate in a natural/idiomatic way with each other.  Incognito is
+an attempt to address this problem.
 
 ### overview
-Incognito is a library that enables objects created in supported JVM runtimes to enter other JVM runtimes 'incognito'
--- assuming an identity inconspicuous to that runtime.  The library defines adaptors to standardize access to objects in each
-supported runtime and it defines proxies to enable idiomatic usage of these objects in receiving runtimes.
+Incognito is a library that enables objects defined in supported JVM languages/runtimes to assume the identity of objects
+defined by other JVM languages.  For example, a Rhino object can assume the identity of a JRuby object (via a JRuby
+proxy) and be utilized in the JRuby runtime as a native JRuby object.
 
 ### goals
 Support interoperablity of objects, primitives (strings, integers, floating point, etc), and literal data-structure types
-(arrays, sets, hashes, etc).  Provide support for basic OO features: property access, method invocation, and duck-type
-reflection (respond_to?, hasProperty,respondsTo, undefined, etc).  Support for executable/callback types (functions,
+(arrays, sets, hashes, etc).  Provide support for basic object utilization: property access, method invocation, and duck-type
+reflection (respond_to?, hasProperty, undefined, etc).  Support for executable/callback types (functions,
 closures, lambdas, etc).
 
 #### out of scope
 
-* Equality of user defined types.
-* Comparison of user defined types.
+* Equality of user defined objects.
+* Comparison of user defined objects.
 
 ### strategy
 
@@ -32,14 +32,14 @@ implementations.
 ### status and roadmap
 Incognito is currently alpha software.  Proposed roadmap:
 * 0.1 - jruby, groovy, rhino, runtime adaptors and proxies, Polly (Groovy)
-* 0.2 - jython, Polly (Rhino, JRuby, Jython)
+* 0.2 - jython, Polly (Rhino, JRuby, Jython), unit/functional test suite
 * 1.0 - performance optimizations / polishing
 * 1.1 - guice-style polyglot IOC
 
 ## usage
 
 Incognito provides a simple and intuitive API which can be called upon directly via the Incognito Java class or indirectly
-via Polly (a poly-glot script utility).
+via Polly (a polyglot script utility).
 
 ### polly usage:
 ```groovy
@@ -103,24 +103,42 @@ via Polly (a poly-glot script utility).
 ```groovy
     import org.microsauce.incognito.Incognito
 
+    //
+    // instantiate incognito
+    //
     def incognito = new Incognito()
+
+    //
+    // register language runtimes
+    //
     incognito.registerRuntime(new RhinoRuntime(rhinoGlobalScope))
     incognito.registerRuntime(new JRubyRuntime(scriptingContainer))
     incognito.registerRuntime(new GroovyRuntime())
 
+    //
+    // create Rhino proxy for JRuby object
+    //
     def rhino_proxy = incognito.assumeIdentity(Runtime.ID.RHINO, jruby_object)
 
-    // pass the proxy into
+    //
+    // pass the proxy into Rhino
+    //
     def ctx = Context.enter()
     try {
         rhinoGlobalScope.put('jruby_object', rhinoGlobalScope, rhino_proxy)
         ctx.evaluateString(rhinoGlobalScope, '''
+
            console.log("Hello " + jruby_object.name)
+
         ''', "scriptlet_0.js", 1, null)
     } finally {if (ctx) ctx.exit()}
 
 ```
 
+=================================================================================
+=================================================================================
+Notes:
+=================================================================================
 =================================================================================
 
 Test.[js|groovy|ruby]:

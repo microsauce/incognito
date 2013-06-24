@@ -63,6 +63,10 @@ class JRubyIncognito
     return JRubyObjectProxy.new(target, this_runtime)
   end
 
+  def to_sym(str)
+	return str.to_sym
+  end
+
   def create_exec_proxy(meta_object, this_runtime)
     if @meta_object.origin_runtime.id == Runtime::ID::JRUBY
       return meta_object.target
@@ -97,7 +101,7 @@ class JRubyIncognito
     return target.respond_to?(identifier)
   end
 
-  def target_members(target)
+  def target_members(target) # TODO remove '' from members set ???
     set = HashSet.new
     user_methods  = (target.methods - Object.methods) #.collect { |it| return it }
     user_methods.each { |it|

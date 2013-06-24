@@ -1,10 +1,12 @@
 package org.microsauce.incognito.groovy
 
 import groovy.transform.CompileStatic
+
 import org.codehaus.groovy.reflection.CachedClass
+import org.jruby.RubySymbol
 import org.microsauce.incognito.MetaObject
-import org.microsauce.incognito.Type
 import org.microsauce.incognito.Runtime
+import org.microsauce.incognito.Type
 import org.microsauce.incognito.util.CloneUtil
 
 class GroovyProxy extends HashMap<String,Object> {
@@ -15,22 +17,6 @@ class GroovyProxy extends HashMap<String,Object> {
     @CompileStatic
     GroovyProxy(MetaObject obj, org.microsauce.incognito.Runtime rt) {this.obj = obj; thisRuntime = rt}
 
-//    Object clone() {     // TODO handle collections [list, set, hash]
-//        Map<String,Object> clone = new HashMap<String,Object>()
-//        for ( entry in entrySet() ) { // all entry values will be MetaObject
-//            if ( entry.value.type == Type.PRIMITIVE || entry.value.type == Type.DATE )
-//                clone[entry.key] = entry.value.getTargetObject()
-//            else if ( entry.value.type == Type.OBJECT )
-//                clone[entry.key] = propertyMissing(entry.key).clone()
-//            else if ( entry.value.type == Type.ARRAY ) {
-//                List array = []
-//                for ( element in obj.getTargetObject() ) {
-//                    array << doClone
-//                }
-//            }
-//        }
-//        return clone
-//    }
     Object clone() {
         Map<String,Object> clone = new HashMap<String,Object>()
         for ( entry in entrySet() ) { // all entry values will be MetaObject
@@ -39,31 +25,11 @@ class GroovyProxy extends HashMap<String,Object> {
         clone
     }
 
-//    Object doClone(MetaObject obj) {
-//        if ( obj.type == Type.PRIMITIVE || obj.type == Type.DATE )
-//            return obj.getTargetObject()
-//        else if ( obj.type == Type.OBJECT )
-//            return new GroovyProxy(obj, obj.originRuntime).clone()
-//        else if ( obj.type == Type.ARRAY || obj.type == Type.SET ) {
-//            List array = []
-//            for ( element in obj.getTargetObject() ) {
-//                array << doClone(element)
-//            }
-//            return array
-//        }
-//        else if ( obj.type == Type.HASH ) {
-//            Map hash = []
-//            for ( entry in obj.getTargetObject() ) {
-//                hash[entry.key] << doClone(entry.value)
-//            }
-//            return hash
-//        }
-//    }
-
     Set<Map.Entry<String, Object>> entrySet() {
         Collection members = obj.originRuntime.members(obj)
         Set<Map.Entry<String, Object>> set = []
         for ( memberName in members ) {
+			memberName = thisRuntime.proxy(obj.getOriginRuntime().wrap(memberName));
             Object value = obj.originRuntime.getMember(obj, memberName)
             set << new AbstractMap.SimpleEntry<String,Object>(memberName, value)
         }
@@ -110,7 +76,6 @@ class GroovyProxy extends HashMap<String,Object> {
         }
     }
 
-//    @Override
     @CompileStatic
     List respondsTo(String identifier) {
         def respondsTo = []
@@ -124,7 +89,6 @@ class GroovyProxy extends HashMap<String,Object> {
         }
     }
 
-//    @Override
     MetaProperty hasProperty(String identifier) {
         def hasProperty = null
         def targetMember = obj.originRuntime.getMember(obj,identifier)

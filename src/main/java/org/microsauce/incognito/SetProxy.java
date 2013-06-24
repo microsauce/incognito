@@ -1,9 +1,12 @@
 package org.microsauce.incognito;
 
-import org.microsauce.incognito.util.CloneUtil;
-
+import java.util.AbstractMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+
+import org.jruby.RubySymbol;
+import org.microsauce.incognito.util.CloneUtil;
 
 public class SetProxy extends CollectionProxy {
 
@@ -28,8 +31,6 @@ public class SetProxy extends CollectionProxy {
         return new ProxySetIterator();
     }
 
-    // TODO
-
     private class ProxySetIterator implements Iterator {
 
         private Iterator iterator;
@@ -44,9 +45,18 @@ public class SetProxy extends CollectionProxy {
         }
 
         @Override
-        public Object next() {
+        public Object next() { 
             Object next = iterator.next();
-            return destRuntime.proxy(trg.getOriginRuntime().wrap(next));
+            if ( next instanceof Map.Entry ) {
+				Object key = ((Map.Entry) next).getKey();
+				key = destRuntime.proxy(trg.getOriginRuntime().wrap(key));
+				Object value = ((Map.Entry) next).getValue();
+				value = destRuntime.proxy(trg.getOriginRuntime().wrap(value));
+				
+				Map.Entry entry = new AbstractMap.SimpleEntry<Object,Object>(key, value);
+				return entry;
+            }
+            return destRuntime.proxy(trg.getOriginRuntime().wrap(next)); 
         }
 
         @Override
